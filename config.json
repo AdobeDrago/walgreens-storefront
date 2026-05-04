@@ -1,0 +1,32 @@
+{
+  "public": {
+    "default": {
+      "commerce-endpoint": "https://na1-sandbox.api.commerce.adobe.com/D2pubpU4jU6rpsn9vC6Q2F/graphql",
+      "headers": {
+        "cs": {
+          "AC-View-ID": "{{HEADER_VALUE}}",
+          "AC-Price-Book-ID": "{{HEADER_VALUE}}"
+        }
+      },
+      "commerce-b2b-enabled": false,
+      "commerce-companies-enabled": false,
+      "commerce-assets-enabled": true,
+      "adobe-commerce-optimizer": true,
+      "analytics": {
+        "base-currency-code": "{{CURRENCY_CODE}}",
+        "environment": "Testing",
+        "environment-id": "D2pubpU4jU6rpsn9vC6Q2F",
+        "locale": "{{LOCALE}}",
+        "store-url": "{{STORE_URL}}",
+        "store-view-currency-code": "{{CURRENCY_CODE}}",
+        "storefront-template": "{{TEMPLATE_TYPE}}",
+        "view-id": "{{CATALOG_VIEW_ID}}"
+      },
+      "plugins": {
+        "picker": {
+          "rootCategory": "{{ROOT_CATEGORY_ID}}"
+        }
+      }
+    }
+  }
+}
