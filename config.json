@@ -4,8 +4,8 @@
       "commerce-endpoint": "https://na1-sandbox.api.commerce.adobe.com/D2pubpU4jU6rpsn9vC6Q2F/graphql",
       "headers": {
         "cs": {
-          "AC-View-ID": "{{HEADER_VALUE}}",
-          "AC-Price-Book-ID": "{{HEADER_VALUE}}"
+          "AC-View-ID": "8d3179fd-4680-4db0-aa49-1d5dfcd6f747",
+          "AC-Price-Book-ID": "default"
         }
       },
       "commerce-b2b-enabled": false,
