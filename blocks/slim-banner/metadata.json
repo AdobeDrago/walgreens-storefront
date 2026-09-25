@@ -1,0 +1,23 @@
+{
+  "variantName": "slim-banner",
+  "baseBlock": "columns",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": {
+    "colorScheme": "dark",
+    "density": "compact",
+    "purpose": "promo-banner",
+    "imagePattern": "side-image",
+    "structure": "image + headline + subline + cta"
+  },
+  "contentPattern": "1 row: [image | headline p, subline p, CTA link (em = secondary/white button)]",
+  "options": [
+    { "label": "Split (60/40 text/image)", "class": "split" },
+    { "label": "Bleed (50/50, display headline)", "class": "bleed" }
+  ],
+  "memberVariantIds": ["slim-banner", "slim-banner-split", "slim-banner-bleed"],
+  "usage": {
+    "pagesUsing": [],
+    "reuseCount": 0,
+    "lastUsed": null
+  }
+}

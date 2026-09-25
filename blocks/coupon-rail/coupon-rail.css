@@ -1,0 +1,381 @@
+/* coupon-rail — coupon glider: rail header (title + "View all"), horizontally scrolling track of
+   coupon cards, overlay arrows from 550px. Values from the source block CSS
+   (main--sdt-walgreens--aemcoder.aem.live/blocks/coupon-rail/coupon-rail.css), verified against
+   computed styles. Option `dark`: plum band (no vertical padding), white header text, white arrows. */
+
+main .section.coupon-rail-dark {
+  background: var(--palette-brand-plum);
+}
+
+.coupon-rail,
+.coupon-rail *,
+.coupon-rail *::before,
+.coupon-rail *::after {
+  box-sizing: border-box;
+}
+
+.coupon-rail {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 8px 16px;
+  color: var(--text-body-primary);
+}
+
+.coupon-rail.dark {
+  padding: 0 16px;
+  color: var(--palette-brand-white);
+}
+
+/* ---- header (re-absorbed default content) ---- */
+.coupon-rail .coupon-rail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 52px;
+  padding: 8px 15px 8px 0;
+}
+
+.coupon-rail .coupon-rail-header > * {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.coupon-rail .coupon-rail-title {
+  flex: 1;
+}
+
+.coupon-rail .coupon-rail-header :is(h1, h2, h3, h4, h5, h6, p) {
+  margin: 0;
+  color: inherit;
+}
+
+.coupon-rail .coupon-rail-title :is(h1, h2, h3, h4, h5, h6, p) {
+  font: 600 18px/22.5px var(--body-font-family);
+}
+
+.coupon-rail .coupon-rail-link a:any-link {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding-left: 16px;
+  font: 700 18px/27px var(--body-font-family);
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.coupon-rail .coupon-rail-caret {
+  width: 15px;
+  height: 10px;
+  min-height: 30px;
+  margin-left: 8px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 2.5;
+  transform: rotate(180deg);
+}
+
+/* ---- track ---- */
+.coupon-rail .coupon-rail-container {
+  position: relative;
+}
+
+.coupon-rail .coupon-rail-viewport {
+  margin: 0;
+  overflow: auto hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.coupon-rail .coupon-rail-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.coupon-rail .coupon-rail-track {
+  display: flex;
+  align-items: stretch;
+  width: max-content;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.coupon-rail .coupon-rail-slide {
+  display: flex;
+  flex: 0 0 257px;
+  width: 257px;
+  min-width: 150px;
+  margin: 0;
+  padding: 0;
+  scroll-snap-align: start;
+}
+
+/* ---- arrows (hidden below 550px — the track is swipeable) ---- */
+.coupon-rail .coupon-rail-arrow {
+  display: none;
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--palette-brand-crimson);
+  color: inherit;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.coupon-rail .coupon-rail-arrow-prev {
+  left: 6px;
+}
+
+.coupon-rail .coupon-rail-arrow-next {
+  right: 1px;
+}
+
+.coupon-rail .coupon-rail-arrow:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.coupon-rail .coupon-rail-arrow-icon {
+  width: 12px;
+  height: 20px;
+  fill: none;
+  stroke: var(--palette-brand-white);
+  stroke-width: 2.5;
+}
+
+.coupon-rail .coupon-rail-arrow-next .coupon-rail-arrow-icon {
+  transform: rotate(180deg);
+}
+
+.coupon-rail.dark .coupon-rail-arrow {
+  border: 1px solid var(--palette-brand-white);
+  background: var(--palette-brand-white);
+}
+
+.coupon-rail.dark .coupon-rail-arrow-icon {
+  stroke: #000;
+}
+
+/* ---- coupon card ---- */
+.coupon-rail .coupon-rail-card {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  width: 100%;
+  height: calc(100% - 8px);
+  margin: 4px;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-coupon);
+  background: var(--palette-brand-white);
+  color: var(--text-body-primary);
+}
+
+.coupon-rail .coupon-rail-badge {
+  position: absolute;
+  top: -7px;
+  left: -20px;
+  z-index: 2;
+  padding: 12px 10px 5px 28px;
+  border-radius: 10px;
+  background: var(--palette-feedback-info);
+  color: var(--palette-brand-white);
+}
+
+.coupon-rail .coupon-rail-badge p {
+  margin: 0;
+  font: 700 12px/18px var(--body-font-family);
+}
+
+.coupon-rail .coupon-rail-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 30px 16px 0;
+}
+
+.coupon-rail .coupon-rail-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 155px;
+  margin: 0 auto 16px;
+  text-align: center;
+}
+
+.coupon-rail .coupon-rail-image picture {
+  display: contents;
+}
+
+.coupon-rail .coupon-rail-image img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* body lines: every line sits on a 16/24 strut */
+.coupon-rail .coupon-rail-body p {
+  margin: 0;
+  font: 400 16px/24px var(--body-font-family);
+}
+
+.coupon-rail .coupon-rail-offer p {
+  font-weight: 600;
+  font-size: 17px;
+}
+
+.coupon-rail .coupon-rail-brand p {
+  font-size: var(--body-font-size-s);
+}
+
+.coupon-rail .coupon-rail-type p {
+  font-size: var(--body-font-size-xs);
+}
+
+.coupon-rail .coupon-rail-foot {
+  width: 100%;
+  margin-top: auto;
+  padding: 0 16px 16px;
+}
+
+.coupon-rail .coupon-rail-foot p {
+  margin: 0;
+}
+
+main .coupon-rail .coupon-rail-foot a.button:any-link {
+  width: 100%;
+}
+
+.coupon-rail .coupon-rail-foot a.button::before {
+  content: "";
+  display: inline-block;
+  width: 21px;
+  height: 20px;
+  margin-right: 8px;
+  background: currentcolor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='21' height='20' viewBox='0 0 21 20'%3E%3Cpath d='M11.176 8.824V9.324H19.324C19.698 9.324 20 9.626 20 10c0 .374-.302.676-.676.676H11.176v8.148c0 .374-.302.676-.676.676a.676.676 0 0 1-.676-.676v-8.148H1.676A.676.676 0 0 1 1 10c0-.374.302-.676.676-.676h8.148V1.176c0-.374.302-.676.676-.676s.676.302.676.676v7.648z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* ---- clip dialog (fragment content) ---- */
+.coupon-rail .coupon-rail-dialog {
+  width: min(560px, calc(100vw - 32px));
+  padding: 48px 32px 32px;
+  border: 0;
+  border-radius: var(--radius-card);
+  color: var(--text-body-primary);
+  text-align: center;
+}
+
+.coupon-rail .coupon-rail-dialog::backdrop {
+  background: rgb(10 20 20 / 60%);
+}
+
+.coupon-rail .coupon-rail-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.coupon-rail .coupon-rail-close-icon {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 2;
+}
+
+.coupon-rail .coupon-rail-dialog-body .default-content-wrapper {
+  max-width: none;
+  padding: 0;
+}
+
+.coupon-rail .coupon-rail-dialog-body img {
+  width: 140px;
+  margin: 0 auto 16px;
+}
+
+.coupon-rail .coupon-rail-dialog-body p {
+  margin: 0 0 16px;
+  font: 400 16px/24px var(--body-font-family);
+}
+
+.coupon-rail .coupon-rail-dialog-body p:has(+ h2) {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border-left: 4px solid var(--palette-feedback-error);
+  background: rgb(163 42 51 / 8%);
+  text-align: left;
+}
+
+.coupon-rail .coupon-rail-dialog-body h2 {
+  margin: 0 0 12px;
+  font: 700 22px/28px var(--body-font-family);
+}
+
+@media (min-width: 550px) {
+  .coupon-rail .coupon-rail-arrow {
+    display: flex;
+  }
+
+  .coupon-rail .coupon-rail-arrow[hidden] {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .coupon-rail {
+    padding: 12px 24px;
+  }
+
+  .coupon-rail.dark {
+    padding: 0 24px;
+  }
+
+  .coupon-rail .coupon-rail-header {
+    min-height: 68px;
+    padding: 12px 15px 12px 0;
+  }
+
+  .coupon-rail .coupon-rail-title :is(h1, h2, h3, h4, h5, h6, p) {
+    font-size: 22px;
+    line-height: 27.5px;
+  }
+
+  .coupon-rail .coupon-rail-link a:any-link {
+    height: 44px;
+    padding-left: 24px;
+  }
+
+  .coupon-rail .coupon-rail-viewport {
+    margin: 0 45px;
+  }
+
+  .coupon-rail .coupon-rail-card {
+    height: calc(100% - 16px);
+    margin: 8px;
+  }
+
+  .coupon-rail .coupon-rail-offer p {
+    font-size: 18px;
+  }
+}

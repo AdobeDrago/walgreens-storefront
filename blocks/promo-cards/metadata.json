@@ -1,0 +1,26 @@
+{
+  "variantName": "promo-cards",
+  "baseBlock": "cards",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": {
+    "colorScheme": "varies-by-option",
+    "density": "medium",
+    "purpose": "promo-grid",
+    "imagePattern": "image-top-or-bottom",
+    "structure": "image + eyebrow + heading + text + cta"
+  },
+  "contentPattern": "1 row per card, 2 cells; cell order = visual order: [image | text] or [text | image]; strong-wrapped link = primary (red) button",
+  "options": [
+    { "label": "Dark band (light cards on dark section)", "class": "dark" },
+    { "label": "Inverse (dark cards, light text)", "class": "inverse" },
+    { "label": "Taupe (warm neutral cards)", "class": "taupe" },
+    { "label": "Plain (white cards)", "class": "plain" },
+    { "label": "Gap top (extra space above the band)", "class": "gap-top" }
+  ],
+  "memberVariantIds": ["promo-cards", "promo-cards-dark", "promo-cards-inverse", "promo-cards-taupe", "promo-cards-plain"],
+  "usage": {
+    "pagesUsing": [],
+    "reuseCount": 0,
+    "lastUsed": null
+  }
+}

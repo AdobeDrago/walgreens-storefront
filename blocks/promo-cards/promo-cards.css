@@ -1,0 +1,263 @@
+/* promo-cards — home image-card bands (values lifted from the source block CSS and verified against
+   computed styles at 1440 / 375). The band heading is default content above the block, styled in place;
+   the variant is mirrored on the section as `promo-cards-<variant>`.
+   Decorated DOM: ul.promo-cards-grid > li.promo-cards-item[.promo-cards-item-wide] >
+   (a|div).promo-cards-card > .promo-cards-image + .promo-cards-body > .promo-cards-text >
+   .promo-cards-kicker | .promo-cards-title | .promo-cards-copy | .promo-cards-meta | .promo-cards-cta */
+
+/* ---- band heading (default content, in place) ---- */
+main .section.promo-cards-container > .default-content-wrapper {
+  box-sizing: border-box;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 8px 16px 0;
+  color: var(--text-body-primary);
+}
+
+main .section.promo-cards-container .default-content-wrapper :is(h1, h2) {
+  margin: 8px 0;
+  font: 400 24px/36.4px var(--heading-font-family);
+  color: inherit;
+}
+
+/* `gap-top`: reserves the space of the two session-bound empty rails that precede the band on live */
+main .section.promo-cards-gap-top > .default-content-wrapper {
+  padding-top: 40px;
+}
+
+main .section:is(.promo-cards-inverse, .promo-cards-taupe) .default-content-wrapper :is(h1, h2) {
+  margin: 0 0 12px;
+}
+
+main .section.promo-cards-dark {
+  background: var(--palette-brand-plum);
+}
+
+main .section.promo-cards-dark > .default-content-wrapper {
+  color: var(--palette-brand-white);
+}
+
+/* ---- grid ---- */
+.promo-cards {
+  box-sizing: border-box;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 16px 8px;
+}
+
+.promo-cards .promo-cards-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.promo-cards.dark .promo-cards-grid {
+  padding-top: 4px;
+}
+
+.promo-cards .promo-cards-item {
+  box-sizing: border-box;
+  display: flex;
+  flex: 0 0 calc(50% - 4px);
+  flex-direction: column;
+  max-width: calc(50% - 4px);
+  margin: 0;
+  padding: 0;
+}
+
+.promo-cards .promo-cards-item-wide {
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+/* ---- card (whole-tile anchor, or a div when the tile holds a CTA) — block layout, as on live:
+   text-first cards keep the image right under the text, spare height sits at the bottom ---- */
+.promo-cards .promo-cards-card {
+  display: block;
+  flex: 1 1 auto;
+  height: 100%;
+  padding: 0;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  background: #f3f2ee;
+  overflow: hidden;
+  color: var(--text-body-primary);
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.promo-cards a.promo-cards-card:hover {
+  text-decoration: none;
+}
+
+.promo-cards.dark .promo-cards-card {
+  background: var(--palette-brand-neutral);
+}
+
+.promo-cards.inverse .promo-cards-card {
+  background: var(--palette-brand-plum);
+  color: var(--palette-brand-white);
+}
+
+.promo-cards.taupe .promo-cards-card {
+  background: var(--palette-brand-taupe);
+}
+
+.promo-cards.plain .promo-cards-card {
+  background: var(--palette-brand-white);
+}
+
+/* live: the second photo tile (wall decor) is the cool grey */
+.promo-cards.taupe .promo-cards-item:nth-child(2) .promo-cards-card {
+  background: #d1d2d6;
+}
+
+.promo-cards .promo-cards-image {
+  display: block;
+  line-height: 0;
+}
+
+.promo-cards .promo-cards-image picture,
+.promo-cards .promo-cards-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.promo-cards .promo-cards-body {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 16px;
+}
+
+.promo-cards .promo-cards-body-clip {
+  margin: 13px;
+  padding: 8px 12px 8px 8px;
+}
+
+.promo-cards .promo-cards-text {
+  display: flex;
+  flex-direction: column;
+}
+
+/* text stack — role wrappers carry the type, authored elements inherit */
+.promo-cards .promo-cards-text p,
+.promo-cards .promo-cards-text :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  color: inherit;
+}
+
+.promo-cards .promo-cards-copy p {
+  font: 400 16px/24px var(--body-font-family);
+}
+
+.promo-cards .promo-cards-copy strong {
+  font-weight: 700;
+}
+
+.promo-cards .promo-cards-kicker p {
+  font: 700 12px/24px var(--body-font-family);
+}
+
+.promo-cards .promo-cards-title :is(h1, h2, h3, h4, h5, h6) {
+  font: 600 18px/24px var(--body-font-family);
+}
+
+/* display variants: serif title; <strong> = larger display size from 768px */
+.promo-cards:is(.dark, .inverse, .taupe) .promo-cards-title :is(h1, h2, h3, h4, h5, h6) {
+  font: 400 24px/30px var(--heading-font-family);
+}
+
+.promo-cards:is(.dark, .inverse, .taupe) .promo-cards-title strong {
+  font-weight: 400;
+}
+
+.promo-cards .promo-cards-meta {
+  margin-top: 6px;
+  margin-bottom: 3px;
+}
+
+.promo-cards .promo-cards-meta p {
+  font: 400 12px/16px var(--body-font-family);
+}
+
+.promo-cards .promo-cards-meta em {
+  font-style: normal;
+}
+
+.promo-cards .promo-cards-cta {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.promo-cards .promo-cards-cta a.button {
+  width: 100%;
+}
+
+.promo-cards .promo-cards-cta a.button::before {
+  content: "";
+  display: inline-block;
+  width: 21px;
+  height: 20px;
+  margin-right: 8px;
+  background: currentcolor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='21' height='20' viewBox='0 0 21 20'%3E%3Cpath d='M11.176 8.824V9.324H19.324C19.698 9.324 20 9.626 20 10c0 .374-.302.676-.676.676H11.176v8.148c0 .374-.302.676-.676.676a.676.676 0 0 1-.676-.676v-8.148H1.676A.676.676 0 0 1 1 10c0-.374.302-.676.676-.676h8.148V1.176c0-.374.302-.676.676-.676s.676.302.676.676v7.648z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+@media (min-width: 768px) {
+  main .section.promo-cards-container > .default-content-wrapper {
+    padding: 12px 24px 0;
+  }
+
+  main .section.promo-cards-gap-top > .default-content-wrapper {
+    padding-top: 60px;
+  }
+
+  main .section.promo-cards-container .default-content-wrapper :is(h1, h2) {
+    font-size: 36px;
+    line-height: 45px;
+  }
+
+  .promo-cards {
+    padding: 0 24px 12px;
+  }
+
+  .promo-cards .promo-cards-grid {
+    gap: 0;
+  }
+
+  .promo-cards.dark .promo-cards-grid {
+    padding-top: 8px;
+  }
+
+  .promo-cards .promo-cards-item {
+    flex: 0 0 25%;
+    max-width: 25%;
+    padding: 8px;
+  }
+
+  .promo-cards .promo-cards-item-wide {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+
+  .promo-cards .promo-cards-title :is(h1, h2, h3, h4, h5, h6) {
+    font-size: 22px;
+    line-height: 27.5px;
+  }
+
+  .promo-cards:is(.dark, .inverse, .taupe) .promo-cards-title :is(h1, h2, h3, h4, h5, h6) {
+    font-size: 28px;
+    line-height: 35px;
+  }
+
+  .promo-cards:is(.dark, .inverse, .taupe) .promo-cards-title strong {
+    font-size: 36px;
+    line-height: 45px;
+  }
+}

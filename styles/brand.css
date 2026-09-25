@@ -1,0 +1,87 @@
+/*
+ * Walgreens brand tokens.
+ * Values lifted from the source site (https://main--sdt-walgreens--aemcoder.aem.live/styles/styles.css,
+ * lsg-common 5.0 palette) and verified against computed styles (migration-work/brand.json).
+ *
+ * Fonts: Inter + Source Sans Pro are self-hosted (OFL). Tiempos Headline (Klim, commercial) is NOT shipped —
+ * the display stack keeps "Tiempos Headline" first and renders the metric-matched `tiempos-headline-substitute`
+ * (Libre Caslon Text, OFL) until a licensed drop-in lands.
+ */
+
+:root {
+  /* lsg-common 5.0 palette */
+  --palette-brand-white: #fff;
+  --palette-brand-neutral: #f4f2ef;
+  --palette-brand-clay: #ded5d0;
+  --palette-brand-charcoal: #413d3c;
+  --palette-brand-crimson: #a32a33;
+  --palette-brand-brand-red: #e62600;
+  --palette-brand-plum: #62002e;
+  --palette-brand-taupe: #e3dbd0;
+  --palette-gray-100: #d9dada;
+  --palette-gray-200: #a5aaaa;
+  --palette-gray-300: #989090;
+  --palette-gray-400: #707575;
+  --palette-gray-500: #414646;
+  --palette-gray-600: #0a1414;
+  --palette-feedback-info: #296ea3;
+  --palette-feedback-success: #00853e;
+  --palette-feedback-warning: #bc5724;
+  --palette-feedback-error: #a32a33;
+
+  /* semantic */
+  --surface-button-primary: var(--palette-brand-crimson);
+  --surface-button-primary-hover: var(--palette-brand-white);
+  --surface-button-secondary: var(--palette-brand-white);
+  --surface-button-secondary-hover: var(--palette-brand-crimson);
+  --text-button-primary: var(--palette-brand-white);
+  --text-button-secondary: var(--palette-brand-charcoal);
+  --border-button-primary: var(--palette-brand-crimson);
+  --border-button-secondary: var(--palette-brand-charcoal);
+  --border-button-focus: var(--palette-gray-600);
+  --text-body-primary: var(--palette-brand-charcoal);
+  --text-link-default: var(--palette-brand-charcoal);
+  --text-link-pressed: var(--palette-gray-400);
+  --border-divider: var(--palette-gray-300);
+  --surface-container-default: var(--palette-brand-neutral);
+
+  /* boilerplate-style aliases */
+  --background-color: var(--palette-brand-white);
+  --text-color: var(--text-body-primary);
+  --link-color: var(--text-link-default);
+  --link-hover-color: var(--text-link-pressed);
+  --light-color: var(--palette-brand-neutral);
+  --dark-color: var(--palette-brand-charcoal);
+
+  /* fonts — brand face first, metric-matched local fallback second */
+  --body-font-family: inter, inter-fallback, sans-serif;
+  --heading-font-family: "Tiempos Headline", tiempos-headline-substitute, tiempos-headline-fallback, georgia, serif;
+  --legacy-font-family: "Source Sans Pro", source-sans-pro-fallback, helvetica, arial, sans-serif;
+
+  /* type scale (computed at 1440 / 360 on the source) */
+  --heading-size-xxl: 36px;
+  --heading-size-xl: 28px;
+  --heading-size-l: 22px;
+  --heading-size-m: 18px;
+  --heading-size-s: 16px;
+  --heading-size-xs: 14px;
+  --body-font-size: 16px;
+  --body-line-height: 24px;
+  --body-font-size-s: 14px;
+  --body-font-size-xs: 12px;
+
+  /* geometry */
+  --content-max-width: 1140px;
+  --gutter: 24px;
+  --radius-card: 8px;
+  --radius-tile: 24px;
+  --radius-pill: 45px;
+  --shadow-card: rgb(65 61 60 / 10%) 0 2px 4px 2px;
+  --shadow-coupon: rgb(0 0 0 / 10%) 0 2px 8px 0;
+}
+
+@media (min-width: 900px) {
+  :root {
+    --heading-size-xl: 36px;
+  }
+}

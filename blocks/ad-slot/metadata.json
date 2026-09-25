@@ -1,0 +1,22 @@
+{
+  "variantName": "ad-slot",
+  "baseBlock": "ad-slot",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": {
+    "colorScheme": "n/a",
+    "density": "minimal",
+    "purpose": "sponsored-ad",
+    "imagePattern": "single-banner",
+    "structure": "image"
+  },
+  "contentPattern": "1 row: [ad image (alt carries sponsor text)] (optional link)",
+  "options": [
+    { "label": "Criteo flagship module (taller slot)", "class": "criteo" }
+  ],
+  "memberVariantIds": ["ad-slot", "ad-slot-criteo"],
+  "usage": {
+    "pagesUsing": [],
+    "reuseCount": 0,
+    "lastUsed": null
+  }
+}

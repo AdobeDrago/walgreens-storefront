@@ -1,0 +1,22 @@
+{
+  "variantName": "coupon-rail",
+  "baseBlock": "carousel",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": {
+    "colorScheme": "light-or-dark",
+    "density": "dense",
+    "purpose": "coupon-rail",
+    "imagePattern": "product-thumb",
+    "structure": "image + expiry + offer + brand + type + clip"
+  },
+  "contentPattern": "1 row per coupon, 3 cells: [image | optional bold expiry p, offer p, brand p, coupon-type p | Clip link (em)]",
+  "options": [
+    { "label": "Dark band (light header and arrows)", "class": "dark" }
+  ],
+  "memberVariantIds": ["coupon-rail", "coupon-rail-dark"],
+  "usage": {
+    "pagesUsing": [],
+    "reuseCount": 0,
+    "lastUsed": null
+  }
+}

@@ -1,0 +1,129 @@
+/* slim-banner — plum inset banner tile: centred text column (headline, sub-line, CTA) beside a cover image.
+   Values from the source block CSS (sdt-walgreens /blocks/slim-banner/slim-banner.css), verified against
+   computed styles at 375 / 1440. Mobile-first: stacked below 992px, side by side from 992px.
+   Options: `split` (60/40 text/image), `bleed` (50/50, display-size headline).
+   Our decorate() emits .slim-banner-box > (.slim-banner-content > headline/sub/cta) + .slim-banner-image;
+   the source's extra .slim-banner-inner / .slim-banner-wrap layers are folded into box / content. */
+
+.slim-banner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 8px 16px;
+}
+
+.slim-banner .slim-banner-box {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow: hidden;
+  width: 100%;
+  min-height: 100px;
+  border-radius: var(--radius-card);
+  background: var(--palette-brand-plum);
+  color: var(--palette-brand-white);
+}
+
+.slim-banner .slim-banner-content {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px 38px;
+  text-align: center;
+}
+
+/* headline: display-xx-small 24/30 (28/35 from 768px); `bleed` uses display-x-small 36/45 */
+.slim-banner .slim-banner-headline p {
+  margin: 0;
+  font: 400 24px/30px var(--heading-font-family);
+  color: var(--palette-brand-white);
+}
+
+/* sub-line: body-small 14/21 (`main` prefix beats the section-band p margin reset in styles.css) */
+main .slim-banner .slim-banner-sub p {
+  margin: 15px 0 0;
+  font: 400 14px/21px var(--body-font-family);
+  color: var(--palette-brand-white);
+}
+
+.slim-banner .slim-banner-cta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.slim-banner .slim-banner-cta a.button.primary {
+  border-color: var(--border-button-primary);
+}
+
+.slim-banner .slim-banner-image {
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+
+.slim-banner .slim-banner-image picture {
+  display: contents;
+}
+
+.slim-banner .slim-banner-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+@media (min-width: 768px) {
+  .slim-banner {
+    padding: 12px 24px;
+  }
+
+  .slim-banner .slim-banner-content {
+    padding: 16px;
+  }
+
+  .slim-banner .slim-banner-headline p {
+    font-size: 28px;
+    line-height: 35px;
+  }
+
+  main .slim-banner .slim-banner-sub p {
+    margin-top: 14px;
+  }
+
+  .slim-banner.bleed .slim-banner-headline p {
+    font-size: 36px;
+    line-height: 45px;
+  }
+}
+
+@media (min-width: 992px) {
+  .slim-banner .slim-banner-box {
+    flex-direction: row;
+  }
+
+  .slim-banner .slim-banner-content,
+  .slim-banner .slim-banner-image {
+    flex: 1 1 50%;
+  }
+
+  /* image is centred in its column at natural aspect (source behaviour), cropped by overflow */
+  .slim-banner .slim-banner-image img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .slim-banner.split .slim-banner-content {
+    flex-basis: 60%;
+    max-width: 60%;
+  }
+
+  .slim-banner.split .slim-banner-image {
+    flex-basis: 40%;
+    max-width: 40%;
+  }
+}

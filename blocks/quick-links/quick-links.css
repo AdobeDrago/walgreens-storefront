@@ -1,0 +1,115 @@
+/* quick-links — health pills band (source: sdt-walgreens blocks/quick-links/quick-links.css).
+   Full-bleed grey band on the section; pills in a 1440 canvas.
+   Mobile (< 768px): 2x2 grid of 55px stacked pills. Desktop (>= 768px): 4 x 40px inline pills.
+   Source DOM .quick-links-row / .quick-links-col / .pill / .pill-frame / .pill-icon / .pill-label p
+   maps to .quick-links-list / .quick-links-item / .quick-links-pill / (pill) / .quick-links-icon / .quick-links-label. */
+
+main .section.quick-links-container {
+  background: var(--palette-gray-300);
+}
+
+.quick-links {
+  box-sizing: border-box;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 8px 16px;
+}
+
+/* scoped under the section container to outrank the band's global ul/ol margin + padding reset */
+main .quick-links-container .quick-links .quick-links-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+}
+
+.quick-links .quick-links-item {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 calc(50% - 4px);
+  max-width: calc(50% - 4px);
+  margin: 0;
+  padding: 0;
+}
+
+.quick-links .quick-links-pill {
+  box-sizing: border-box;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  height: 55px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: var(--shadow-card);
+  background: var(--palette-brand-white);
+  color: var(--text-body-primary);
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+/* global a:not(.dropin-design a):hover underlines links; the source pill stays undecorated */
+.quick-links a.quick-links-pill:hover {
+  color: var(--text-body-primary);
+  text-decoration: none;
+}
+
+.quick-links .quick-links-icon {
+  box-sizing: border-box;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  width: 24px;
+  height: 24px;
+  padding: 2px;
+  border-radius: 40px;
+  background: transparent;
+}
+
+.quick-links .quick-links-icon img {
+  display: block;
+  width: 20px;
+  height: 20px;
+  object-fit: fill;
+  filter: brightness(0);
+}
+
+.quick-links .quick-links-label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 15px;
+  margin: 0;
+  font: 700 12px/15px var(--body-font-family);
+  color: var(--text-body-primary);
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .quick-links {
+    padding: 12px 24px;
+  }
+
+  main .quick-links-container .quick-links .quick-links-list {
+    gap: 0;
+    margin: 8px 0;
+    padding: 0;
+  }
+
+  .quick-links .quick-links-item {
+    flex: 0 0 25%;
+    max-width: 25%;
+    padding: 0 8px;
+  }
+
+  .quick-links .quick-links-pill {
+    flex-direction: row;
+    gap: 4px;
+    height: 40px;
+  }
+}

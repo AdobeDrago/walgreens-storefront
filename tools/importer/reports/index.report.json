@@ -1,0 +1,24 @@
+{
+  "status": "success",
+  "url": "https://main--sdt-walgreens--aemcoder.aem.live/",
+  "path": "index",
+  "timestamp": "2026-09-24T23:07:45.262Z",
+  "title": "Walgreens: Pharmacy, Health & Wellness, Photo & More for You",
+  "template": "home",
+  "blocks": [
+    "quick-links",
+    "slim-banner",
+    "slim-banner",
+    "promo-cards",
+    "promo-cards",
+    "promo-cards",
+    "promo-cards",
+    "promo-cards",
+    "coupon-rail",
+    "coupon-rail",
+    "ad-slot",
+    "ad-slot",
+    "deals-rail",
+    "featured-categories"
+  ]
+}

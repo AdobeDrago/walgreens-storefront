@@ -1,0 +1,251 @@
+{
+  "metadata": {
+    "projectType": "da"
+  },
+  "templates": [
+    {
+      "name": "home",
+      "urls": [
+        "https://main--sdt-walgreens--aemcoder.aem.live/"
+      ],
+      "representativeUrl": "https://main--sdt-walgreens--aemcoder.aem.live/",
+      "description": "Walgreens homepage. Source is an existing EDS site: selectors target the AUTHORED markup (from {path}.plain.html), which the eds-plain transformer swaps into <main> before parsing.",
+      "urlPattern": "/",
+      "blocks": [
+        {
+          "name": "quick-links",
+          "instances": [
+            "main > div > div.quick-links"
+          ]
+        },
+        {
+          "name": "slim-banner",
+          "instances": [
+            "main > div > div.slim-banner"
+          ]
+        },
+        {
+          "name": "promo-cards",
+          "instances": [
+            "main > div > div.promo-cards"
+          ]
+        },
+        {
+          "name": "coupon-rail",
+          "instances": [
+            "main > div > div.coupon-rail"
+          ]
+        },
+        {
+          "name": "ad-slot",
+          "instances": [
+            "main > div > div.ad-slot"
+          ]
+        },
+        {
+          "name": "deals-rail",
+          "instances": [
+            "main > div > div.deals-rail"
+          ]
+        },
+        {
+          "name": "featured-categories",
+          "instances": [
+            "main > div > div.featured-categories"
+          ]
+        }
+      ],
+      "sections": [
+        {
+          "id": "1",
+          "name": "quick-links",
+          "selector": [
+            "main > div:has(> div.quick-links)"
+          ],
+          "style": null,
+          "blocks": [
+            "quick-links"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "2",
+          "name": "vaccine-banner",
+          "selector": [
+            "main > div:has(> div.slim-banner.split)"
+          ],
+          "style": null,
+          "blocks": [
+            "slim-banner"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "3",
+          "name": "health-promos",
+          "selector": [
+            "main > div:has(> div.promo-cards:not(.dark):not(.inverse):not(.taupe):not(.plain))"
+          ],
+          "style": null,
+          "blocks": [
+            "promo-cards"
+          ],
+          "defaultContent": [
+            "h1"
+          ]
+        },
+        {
+          "id": "4",
+          "name": "beauty-savings",
+          "selector": [
+            "main > div:has(> div.promo-cards.dark)"
+          ],
+          "style": null,
+          "blocks": [
+            "promo-cards"
+          ],
+          "defaultContent": [
+            "h2"
+          ]
+        },
+        {
+          "id": "5",
+          "name": "beauty-deals-rail",
+          "selector": [
+            "main > div:has(> div.coupon-rail.dark)"
+          ],
+          "style": null,
+          "blocks": [
+            "coupon-rail"
+          ],
+          "defaultContent": [
+            "h2",
+            "p"
+          ]
+        },
+        {
+          "id": "6",
+          "name": "sponsored-ad",
+          "selector": [
+            "main > div:has(> div.ad-slot:not(.criteo))"
+          ],
+          "style": null,
+          "blocks": [
+            "ad-slot"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "7",
+          "name": "fall-well-being",
+          "selector": [
+            "main > div:has(> div.promo-cards.inverse)"
+          ],
+          "style": null,
+          "blocks": [
+            "promo-cards"
+          ],
+          "defaultContent": [
+            "h2"
+          ]
+        },
+        {
+          "id": "8",
+          "name": "save-every-smile",
+          "selector": [
+            "main > div:has(> div.promo-cards.taupe)"
+          ],
+          "style": null,
+          "blocks": [
+            "promo-cards"
+          ],
+          "defaultContent": [
+            "h2"
+          ]
+        },
+        {
+          "id": "9",
+          "name": "halloween-banner",
+          "selector": [
+            "main > div:has(> div.slim-banner.bleed)"
+          ],
+          "style": null,
+          "blocks": [
+            "slim-banner"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "10",
+          "name": "deals-of-the-week",
+          "selector": [
+            "main > div:has(> div.deals-rail)"
+          ],
+          "style": null,
+          "blocks": [
+            "deals-rail"
+          ],
+          "defaultContent": [
+            "p",
+            "h2"
+          ]
+        },
+        {
+          "id": "11",
+          "name": "offers-for-you",
+          "selector": [
+            "main > div:has(> div.coupon-rail:not(.dark))"
+          ],
+          "style": null,
+          "blocks": [
+            "coupon-rail"
+          ],
+          "defaultContent": [
+            "h2",
+            "p"
+          ]
+        },
+        {
+          "id": "12",
+          "name": "explore-more",
+          "selector": [
+            "main > div:has(> div.promo-cards.plain)"
+          ],
+          "style": null,
+          "blocks": [
+            "promo-cards"
+          ],
+          "defaultContent": [
+            "h2"
+          ]
+        },
+        {
+          "id": "13",
+          "name": "criteo-ad",
+          "selector": [
+            "main > div:has(> div.ad-slot.criteo)"
+          ],
+          "style": null,
+          "blocks": [
+            "ad-slot"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "14",
+          "name": "featured-categories",
+          "selector": [
+            "main > div:has(> div.featured-categories)"
+          ],
+          "style": null,
+          "blocks": [
+            "featured-categories"
+          ],
+          "defaultContent": [
+            "h2"
+          ]
+        }
+      ]
+    }
+  ]
+}

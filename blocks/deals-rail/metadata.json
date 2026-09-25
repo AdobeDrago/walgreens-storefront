@@ -1,0 +1,20 @@
+{
+  "variantName": "deals-rail",
+  "baseBlock": "carousel",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "dense",
+    "purpose": "deals-rail",
+    "imagePattern": "product-thumb",
+    "structure": "image + price heading + description"
+  },
+  "contentPattern": "1 row per deal: [product image | linked h3 price/deal, description p]",
+  "options": [],
+  "memberVariantIds": ["deals-rail"],
+  "usage": {
+    "pagesUsing": [],
+    "reuseCount": 0,
+    "lastUsed": null
+  }
+}

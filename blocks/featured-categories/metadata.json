@@ -1,0 +1,20 @@
+{
+  "variantName": "featured-categories",
+  "baseBlock": "cards",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "dense",
+    "purpose": "category-nav",
+    "imagePattern": "circle-thumb",
+    "structure": "image + link"
+  },
+  "contentPattern": "1 row per category: [circle image | single link]; final row: ['See more' | 'See less'] toggle labels (optional)",
+  "options": [],
+  "memberVariantIds": ["featured-categories"],
+  "usage": {
+    "pagesUsing": [],
+    "reuseCount": 0,
+    "lastUsed": null
+  }
+}

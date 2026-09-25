@@ -1,0 +1,9 @@
+{
+  "sites": {
+    "walgreens-storefront": {
+      "previewOrg": "adobedrago",
+      "previewSite": "walgreens-storefront",
+      "contentHostUrl": "https://content.da.live/adobedrago/walgreens-storefront/"
+    }
+  }
+}

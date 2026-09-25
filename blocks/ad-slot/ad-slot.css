@@ -1,0 +1,63 @@
+/* ad-slot — reserved-height, centred ad band (GAM leaderboard / Criteo flagship module).
+   Values from source ad-slot.css. Mobile-first: source mobile range is <=767px, desktop >=768px.
+   Option `criteo`: taller flagship module, collapsed (empty 16px slot) on small screens. */
+
+.ad-slot {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 8px 16px;
+}
+
+.ad-slot .ad-slot-frame {
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  height: 81px;
+  text-align: center;
+}
+
+.ad-slot .ad-slot-link {
+  display: block;
+  line-height: 0;
+}
+
+.ad-slot .ad-slot-frame picture {
+  display: contents;
+}
+
+.ad-slot .ad-slot-frame img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 100%;
+}
+
+.ad-slot.criteo .ad-slot-frame {
+  height: 16px;
+  overflow: hidden;
+}
+
+.ad-slot.criteo .ad-slot-frame img {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .ad-slot {
+    padding: 12px 24px;
+  }
+
+  .ad-slot .ad-slot-frame {
+    height: 114px;
+  }
+
+  .ad-slot.criteo .ad-slot-frame {
+    height: 246px;
+    overflow: visible;
+  }
+
+  .ad-slot.criteo .ad-slot-frame img {
+    display: block;
+  }
+}

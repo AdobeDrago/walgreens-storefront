@@ -1,0 +1,184 @@
+/* featured-categories — wrapping row of round category tiles (3 / 5 / 6 / 8 / 10 per row at
+   mobile / 576 / 768 / 992 / 1200px). When a See more toggle is authored the collapsed region is
+   clipped to the first icon row (desktop/tablet) or two rows (below 768px); tiles past the visible
+   rows are also removed from the tab order. The section title is default content above the block. */
+
+main .section.featured-categories-container > .default-content-wrapper {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 8px 16px 0;
+}
+
+main .section.featured-categories-container .default-content-wrapper :is(h1, h2) {
+  margin: 10px 0 6.6px;
+  font: 600 22px/36px var(--body-font-family);
+  color: var(--palette-gray-600);
+}
+
+main .section.featured-categories-container .featured-categories {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 16px 48px;
+}
+
+.featured-categories .featured-categories-list {
+  display: flex;
+  position: relative;
+  flex-flow: row wrap;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: center;
+}
+
+.featured-categories .featured-categories-item {
+  width: calc(100% / 3);
+  margin: 0;
+  padding: 8px 0;
+  font-size: 12px;
+}
+
+.featured-categories .featured-categories-tile {
+  display: inline-block;
+  width: 90%;
+  color: var(--text-body-primary);
+  text-decoration: none;
+}
+
+/* source tiles have no hover/active treatment (outranks the global a:hover underline) */
+.featured-categories .featured-categories-list .featured-categories-tile:is(:hover, :active) {
+  color: var(--text-body-primary);
+  text-decoration: none;
+}
+
+.featured-categories .featured-categories-image picture {
+  display: block;
+}
+
+.featured-categories .featured-categories-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  padding-bottom: 8px;
+  border-radius: 50%;
+}
+
+.featured-categories .featured-categories-label {
+  display: block;
+  margin: 0 0 12px;
+  font: 400 14px/21px var(--body-font-family);
+  color: var(--palette-brand-charcoal);
+}
+
+/* collapsed region: clip to the visible rows, drop the rest from the tab order */
+.featured-categories.is-collapsible .featured-categories-region:not(.is-open) {
+  height: 349px;
+  overflow: hidden;
+}
+
+.featured-categories.is-collapsible .featured-categories-region:not(.is-open) .featured-categories-item:nth-child(n + 7) {
+  display: none;
+}
+
+.featured-categories .featured-categories-more {
+  margin-top: 4px;
+  line-height: 0;
+  text-align: center;
+}
+
+.featured-categories .featured-categories-toggle {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--palette-brand-charcoal);
+  font: 700 14px/17.5px var(--body-font-family);
+  cursor: pointer;
+}
+
+.featured-categories .featured-categories-chevron {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-left: 5px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 2;
+  vertical-align: middle;
+}
+
+.featured-categories .featured-categories-toggle[aria-expanded="true"] .featured-categories-chevron {
+  transform: rotate(180deg);
+}
+
+@media (min-width: 576px) {
+  .featured-categories .featured-categories-item {
+    width: calc(100% / 5);
+  }
+
+  .featured-categories.is-collapsible .featured-categories-region:not(.is-open) .featured-categories-item:nth-child(n + 7) {
+    display: list-item;
+  }
+
+  .featured-categories.is-collapsible .featured-categories-region:not(.is-open) .featured-categories-item:nth-child(n + 11) {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  main .section.featured-categories-container > .default-content-wrapper {
+    padding: 12px 24px 0;
+  }
+
+  main .section.featured-categories-container .featured-categories {
+    padding: 0 24px 61px;
+  }
+
+  .featured-categories .featured-categories-item {
+    width: calc(100% / 6);
+  }
+
+  .featured-categories .featured-categories-label {
+    margin-bottom: 16px;
+  }
+
+  .featured-categories.is-collapsible .featured-categories-region:not(.is-open) {
+    height: 212px;
+  }
+
+  .featured-categories.is-collapsible .featured-categories-region:not(.is-open) .featured-categories-item:nth-child(n + 7) {
+    display: none;
+  }
+}
+
+@media (min-width: 992px) {
+  .featured-categories .featured-categories-item {
+    width: calc(100% / 8);
+  }
+
+  .featured-categories.is-collapsible .featured-categories-region:not(.is-open) .featured-categories-item:nth-child(n + 7) {
+    display: list-item;
+  }
+
+  .featured-categories.is-collapsible .featured-categories-region:not(.is-open) .featured-categories-item:nth-child(n + 9) {
+    display: none;
+  }
+}
+
+@media (min-width: 1200px) {
+  .featured-categories .featured-categories-item {
+    width: calc(100% / 10);
+  }
+
+  .featured-categories.is-collapsible .featured-categories-region:not(.is-open) .featured-categories-item:nth-child(n + 9) {
+    display: list-item;
+  }
+
+  .featured-categories.is-collapsible .featured-categories-region:not(.is-open) .featured-categories-item:nth-child(n + 11) {
+    display: none;
+  }
+}
