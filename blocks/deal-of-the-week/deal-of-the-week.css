@@ -147,7 +147,13 @@
 .deal-of-the-week .deal-of-the-week-card .dropin-product-item-card {
   display: flex;
   flex-direction: column;
+  width: 100%;
   height: 100%;
+}
+
+.deal-of-the-week .deal-of-the-week-card .dropin-product-item-card__image-container,
+.deal-of-the-week .deal-of-the-week-card .dropin-product-item-card__content {
+  width: 100%;
 }
 
 .deal-of-the-week .deal-of-the-week-card .dropin-product-item-card__image-container {
