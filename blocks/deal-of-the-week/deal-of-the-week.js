@@ -1,9 +1,11 @@
 /**
  * deal-of-the-week — dynamic product carousel sourced from Adobe Commerce Optimizer (ACO).
  *
- * Authoring: a single, optional block-config table (Title | text, View all | link,
- * Page size | number). The product set itself is not authored — it always comes from
- * ACO's `deal_of_the_week` attribute filter.
+ * Authoring: same pattern as blocks/deals-rail — default content directly before the block
+ * (icon, heading, "View all" link, store/expiry line) is re-absorbed into the header. The
+ * block itself carries no card rows; an optional `Page size` config row overrides how many
+ * deals to request. The product set is never authored — it always comes from ACO's
+ * `deal_of_the_week` attribute filter.
  *
  * Visual/carousel scaffold (stage/viewport/track/arrows) mirrors blocks/deals-rail, but the
  * card contents are rendered with the shared dropin Preact components (ProductItemCard/
@@ -115,23 +117,47 @@ function arrow(direction, label) {
   return btn;
 }
 
-function buildHeader(title, viewAllHref) {
-  if (!title && !viewAllHref) return null;
+/** header: re-absorb default content preceding the block, by role — mirrors deals-rail.js */
+function buildHeader(block) {
+  const wrapper = block.parentElement && block.parentElement.previousElementSibling;
+  const sources = [];
+  if (wrapper && wrapper.classList.contains('default-content-wrapper')) {
+    sources.push(...wrapper.children);
+  }
+
+  const icon = el('deal-of-the-week-icon');
+  const title = el('deal-of-the-week-title');
+  const link = el('deal-of-the-week-link');
+  const store = el('deal-of-the-week-store');
+  sources.forEach((node) => {
+    if (/^H[1-6]$/.test(node.tagName)) title.append(node);
+    else if (node.querySelector('picture, img, .icon') && !node.textContent.trim()) icon.append(node);
+    else if (node.querySelector('a[href]')) link.append(node);
+    else if (node.textContent.trim()) store.append(node);
+  });
+  if (!title.childElementCount && !link.childElementCount && !store.childElementCount) return null;
+
   const header = el('deal-of-the-week-header');
   const row = el('deal-of-the-week-title-row');
-  if (title) {
-    const h2 = document.createElement('h2');
-    h2.className = 'deal-of-the-week-title';
-    h2.textContent = title;
-    row.append(h2);
+  if (icon.childElementCount) {
+    // decorative tag icon (empty alt): keep it out of the accessibility tree
+    if (![...icon.querySelectorAll('img')].some((img) => img.alt.trim())) {
+      icon.setAttribute('aria-hidden', 'true');
+    }
+    row.append(icon);
   }
-  if (viewAllHref) {
-    const link = el('deal-of-the-week-link', 'a');
-    link.href = viewAllHref;
-    link.textContent = 'View all';
+  row.append(title);
+  const a = link.querySelector('a[href]');
+  if (a) {
+    a.classList.remove('button', 'primary', 'secondary', 'accent');
+    const p = a.closest('.button-wrapper');
+    if (p) p.classList.remove('button-wrapper');
+    a.append(svgIcon(ARROW_D, 'deal-of-the-week-caret', '0 0 12 20'));
     row.append(link);
   }
   header.append(row);
+  if (store.childElementCount) header.append(store);
+  if (wrapper && !wrapper.childElementCount) wrapper.remove();
   return header;
 }
 
@@ -200,9 +226,8 @@ function wireCarousel({
 }
 
 export default async function decorate(block) {
-  const { title, viewAll, pageSize: pageSizeRaw } = readBlockConfig(block);
-
-  [...block.children].forEach((row) => { row.style.display = 'none'; });
+  const { pageSize: pageSizeRaw } = readBlockConfig(block);
+  const header = buildHeader(block);
 
   const pageSize = Number.parseInt(pageSizeRaw, 10) || DEFAULT_PAGE_SIZE;
   const items = await fetchDeals({ pageSize, currentPage: 1 });
@@ -212,12 +237,11 @@ export default async function decorate(block) {
     return;
   }
 
-  const header = buildHeader(title, viewAll);
   const {
     stage, viewport, track, prev, next,
   } = buildStage(items);
 
-  block.append(...(header ? [header] : []), stage);
+  block.replaceChildren(...(header ? [header] : []), stage);
 
   wireCarousel({
     viewport, track, prev, next,

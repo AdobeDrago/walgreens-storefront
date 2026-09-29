@@ -17,7 +17,11 @@
   box-sizing: border-box;
 }
 
-/* ---- header ---- */
+.deal-of-the-week picture {
+  display: contents;
+}
+
+/* ---- header (re-absorbed default content) ---- */
 .deal-of-the-week .deal-of-the-week-header {
   padding: 8px 15px 8px 0;
 }
@@ -30,14 +34,57 @@
   font: 600 18px/22.5px var(--body-font-family);
 }
 
-.deal-of-the-week .deal-of-the-week-title {
+.deal-of-the-week .deal-of-the-week-title-row > * {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.deal-of-the-week .deal-of-the-week-header :is(h1, h2, h3, h4, h5, h6, p) {
   margin: 0;
+}
+
+.deal-of-the-week .deal-of-the-week-icon p {
+  display: flex;
+  line-height: 0;
+}
+
+.deal-of-the-week .deal-of-the-week-icon img {
+  display: block;
+  width: 36px;
+  height: 36px;
+  margin-right: 8px;
+  object-fit: contain;
+}
+
+.deal-of-the-week .deal-of-the-week-title {
   flex: 1;
+}
+
+.deal-of-the-week .deal-of-the-week-title :is(h1, h2, h3, h4, h5, h6) {
   font: 400 24px/36.4px var(--heading-font-family);
   color: inherit;
 }
 
-.deal-of-the-week .deal-of-the-week-link:any-link {
+.deal-of-the-week .deal-of-the-week-store strong {
+  font-weight: 700;
+  color: var(--palette-brand-brand-red);
+}
+
+.deal-of-the-week .deal-of-the-week-title strong {
+  font-weight: 400;
+}
+
+.deal-of-the-week .deal-of-the-week-title strong:first-child {
+  color: var(--palette-brand-brand-red);
+}
+
+.deal-of-the-week .deal-of-the-week-title em {
+  font-weight: 300;
+  font-style: normal;
+}
+
+.deal-of-the-week .deal-of-the-week-link a:any-link {
   display: flex;
   align-items: center;
   height: 36px;
@@ -47,6 +94,23 @@
   color: inherit;
   text-decoration: none;
   white-space: nowrap;
+}
+
+.deal-of-the-week .deal-of-the-week-caret {
+  width: 15px;
+  height: 10px;
+  min-height: 30px;
+  margin-left: 8px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 2.5;
+  transform: rotate(180deg);
+}
+
+.deal-of-the-week .deal-of-the-week-store p {
+  padding-top: 8px;
+  font: 400 12px/15px var(--body-font-family);
+  color: var(--text-link-default);
 }
 
 /* ---- track ---- */
@@ -221,14 +285,24 @@
     min-height: 44px;
   }
 
-  .deal-of-the-week .deal-of-the-week-title {
+  .deal-of-the-week .deal-of-the-week-title :is(h1, h2, h3, h4, h5, h6) {
     font-size: 36px;
     line-height: 45px;
   }
 
-  .deal-of-the-week .deal-of-the-week-link:any-link {
+  .deal-of-the-week .deal-of-the-week-title em {
+    font-size: 28px;
+    line-height: 35px;
+  }
+
+  .deal-of-the-week .deal-of-the-week-link a:any-link {
     height: 44px;
     padding-left: 24px;
+  }
+
+  .deal-of-the-week .deal-of-the-week-store p {
+    font-size: 16px;
+    line-height: normal;
   }
 
   .deal-of-the-week .deal-of-the-week-viewport {
