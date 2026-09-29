@@ -248,10 +248,3 @@
     font-size: 18px;
   }
 }
-
-@media (min-width: 1200px) {
-  .deal-of-the-week .deal-of-the-week-slide {
-    flex-basis: 280px;
-    width: 280px;
-  }
-}
