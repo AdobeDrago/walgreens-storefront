@@ -1,0 +1,20 @@
+{
+  "variantName": "deal-of-the-week",
+  "baseBlock": "carousel",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "dense",
+    "purpose": "deal-of-the-week",
+    "imagePattern": "product-thumb",
+    "structure": "image + price heading + description"
+  },
+  "contentPattern": "Config rows: title, view-all link (optional), page size (optional). Cards are fetched dynamically from Adobe Commerce Optimizer via the deal_of_the_week attribute filter, not authored per-row.",
+  "options": [],
+  "memberVariantIds": ["deal-of-the-week"],
+  "usage": {
+    "pagesUsing": [],
+    "reuseCount": 0,
+    "lastUsed": null
+  }
+}
