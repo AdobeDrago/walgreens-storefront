@@ -1,0 +1,112 @@
+# Deploys nav-app/ to the App Builder Stage workspace when it changes on main (or on demand).
+# Based on Adobe's generated App Builder CI (generator-aio-app add-ci deploy_stage.yml), adapted
+# for an app in a subfolder: Adobe's aio-apps-action always runs in the repo root, so it is used
+# only to sign in, and the build + deploy run in nav-app/ with the CLI directly.
+# Secrets live in the "stage" GitHub environment — see nav-app/README.md.
+name: Deploy nav-app (Stage)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'nav-app/**'
+      - '.github/workflows/deploy-nav-app.yaml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-nav-app-stage
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to Stage
+    runs-on: ubuntu-latest
+    environment: stage
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: nav-app
+    steps:
+      # until the one-time setup in nav-app/README.md is done, skip instead of failing
+      - name: Check setup
+        id: setup
+        working-directory: .
+        run: |
+          if [ -n "$AIO_RUNTIME_AUTH" ] && [ -n "$CLIENTID" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::nav-app deploy skipped: the stage environment has no App Builder secrets yet (see nav-app/README.md, Deploy from GitHub Actions)"
+          fi
+        env:
+          AIO_RUNTIME_AUTH: ${{ secrets.AIO_RUNTIME_AUTH }}
+          CLIENTID: ${{ secrets.CLIENTID }}
+
+      - name: Checkout
+        if: steps.setup.outputs.ready == 'true'
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 22
+        if: steps.setup.outputs.ready == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: nav-app/package-lock.json
+
+      - name: Install
+        if: steps.setup.outputs.ready == 'true'
+        run: npm ci
+
+      - name: Test
+        if: steps.setup.outputs.ready == 'true'
+        run: npm test
+
+      - name: Setup aio CLI
+        if: steps.setup.outputs.ready == 'true'
+        uses: adobe/aio-cli-setup-action@1.3.0
+        with:
+          os: ubuntu-latest
+          version: 11.x.x
+
+      - name: Sign in (OAuth server-to-server)
+        if: steps.setup.outputs.ready == 'true'
+        uses: adobe/aio-apps-action@4.1.0
+        with:
+          os: ubuntu-latest
+          command: oauth_sts
+          CLIENTID: ${{ secrets.CLIENTID }}
+          CLIENTSECRET: ${{ secrets.CLIENTSECRET }}
+          TECHNICALACCOUNTID: ${{ secrets.TECHNICALACCID }}
+          TECHNICALACCOUNTEMAIL: ${{ secrets.TECHNICALACCEMAIL }}
+          IMSORGID: ${{ secrets.IMSORGID }}
+          SCOPES: ${{ secrets.SCOPES }}
+
+      # same as `npm run deploy`: production React build, minified web assets
+      - name: Build and deploy
+        if: steps.setup.outputs.ready == 'true'
+        run: aio app deploy --web-optimize --no-publish
+        env:
+          NODE_ENV: production
+          EDS_ORIGIN: ${{ vars.EDS_ORIGIN || 'https://main--walgreens-storefront--adobedrago.aem.page' }}
+          AIO_RUNTIME_NAMESPACE: ${{ secrets.AIO_RUNTIME_NAMESPACE }}
+          AIO_RUNTIME_AUTH: ${{ secrets.AIO_RUNTIME_AUTH }}
+          AIO_PROJECT_ID: ${{ secrets.AIO_PROJECT_ID }}
+          AIO_PROJECT_NAME: ${{ secrets.AIO_PROJECT_NAME }}
+          AIO_PROJECT_ORG_ID: ${{ secrets.AIO_PROJECT_ORG_ID }}
+          AIO_PROJECT_WORKSPACE_ID: ${{ secrets.AIO_PROJECT_WORKSPACE_ID }}
+          AIO_PROJECT_WORKSPACE_NAME: ${{ secrets.AIO_PROJECT_WORKSPACE_NAME }}
+          AIO_PROJECT_WORKSPACE_DETAILS_SERVICES: ${{ secrets.AIO_PROJECT_WORKSPACE_DETAILS_SERVICES }}
+
+      - name: Check the deployed nav
+        if: steps.setup.outputs.ready == 'true'
+        run: |
+          url="https://${AIO_RUNTIME_NAMESPACE}.adobeio-static.net/api/v1/web/nav-app/nav"
+          # the response is CDN-cached for 5 minutes; a unique query string skips the cached copy
+          body=$(curl -fsS "$url?deploy=${GITHUB_SHA}")
+          echo "$body" | grep -q 'class="wnav"' || { echo "::error::$url returned no nav markup"; exit 1; }
+          echo "$body" | grep -q '<script src=' || { echo "::error::$url returned no hydration script"; exit 1; }
+          echo "Deployed: $url"
+        env:
+          AIO_RUNTIME_NAMESPACE: ${{ secrets.AIO_RUNTIME_NAMESPACE }}

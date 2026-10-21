@@ -23,9 +23,11 @@ browser: web-src/src/client.js (static hosting) → hydrateRoot(#wnav-root, <Nav
 | Path | Purpose |
 |------|---------|
 | `src/parse-nav.js` | Reads the authored nav document into a JSON model. Same slot order as `blocks/header/header.js`, so authors keep editing `/nav` as today. |
-| `src/Nav.js` | The React component, shared by server and browser. Uses `htm` instead of JSX, so there's no transpile step. |
+| `src/Nav.js` | The React component, shared by server and browser. It renders the same DOM and classes as the EDS header block (`blocks/header/header.js`), the project's port of walgreens.com. Uses `htm` instead of JSX, so there's no transpile step. |
+| `src/icons.js` | The header's 32×32 glyphs, copied from `header.js`. |
 | `src/render.js` | Model → HTML fragment (or a standalone page). |
 | `actions/nav/index.js` | The web action. |
+| `web-src/src/nav.css` | `blocks/header/header.css` scoped to `.wnav`, plus the brand tokens it uses. Commerce panel rules are removed. |
 | `web-src/` | Hydration bundle (built by Parcel on deploy). The action reads its hashed asset URLs from the deployed `index.html`. |
 | `scripts/dev.js` | Local preview without a workspace. |
 
@@ -40,7 +42,17 @@ Action responses:
 Responses are `Cache-Control: public, max-age=300, stale-while-revalidate=600`.
 
 Out of scope for the prototype: the Commerce drop-ins the EDS header wires in (search popover,
-signed-in account state, mini-cart and cart badge). Search submits a plain `GET /search?q=`.
+signed-in account state, mini-cart and cart badge). Search submits a plain `GET /search?q=`, and the
+account panel always shows the signed-out "Sign in" button.
+
+Fonts come from the page. Injected into the EDS site, the nav uses its Inter and Source Sans Pro.
+On its own (`?format=page`) it falls back to system fonts, because aem.page doesn't send CORS headers
+for fonts.
+
+The hydration script loads cross-origin on the EDS page. App Builder static hosting sends no CORS
+headers, so it has to be a classic `<script defer>`, which is what aio's Parcel build emits. A module
+script would be blocked. The action copies whatever script tag the deployed `index.html` has, and
+`npm run dev` serves its assets the same way (classic script, no CORS).
 
 ## Local preview (no Adobe project needed)
 
@@ -75,8 +87,10 @@ different branch's nav.
    ```
 5. Deploy:
    ```bash
-   aio app deploy
+   npm run deploy
    ```
+   This runs `NODE_ENV=production aio app deploy --web-optimize`. A plain `aio app deploy` also
+   works, but it ships React's unminified development build (about 1.2 MB instead of about 230 KB).
    The output prints the action URL,
    `https://<namespace>.adobeioruntime.net/api/v1/web/nav-app/nav`, and the static hosting URL,
    `https://<namespace>.adobeio-static.net/`.
@@ -85,3 +99,31 @@ different branch's nav.
 
 `aio app dev` also works once linked. Set `ASSET_BASE` to the local web server it prints, so the
 fragment points at the local bundle.
+
+## Deploy from GitHub Actions
+
+`.github/workflows/deploy-nav-app.yaml` deploys `nav-app/` to the **Stage** workspace on every push
+to `main` that touches `nav-app/`. You can also run it by hand from the Actions tab (**Deploy
+nav-app (Stage)** → **Run workflow**). It runs the tests, then the same optimized build as
+`npm run deploy`, then checks that the deployed action returns the nav with its script.
+
+One-time setup:
+
+1. **Add a CI credential to the Stage workspace.** In Developer Console, open the project, then the
+   **Stage** workspace. Choose **Add service → API → I/O Management API → OAuth Server-to-Server**
+   and save.
+2. **Refresh the local link** so `.env` picks up that credential. From `nav-app/`:
+   ```bash
+   aio app use --merge   # pick the same org → project → Stage
+   ```
+3. **Copy the workspace into GitHub secrets.** This creates the `stage` GitHub environment and sets
+   its secrets. It needs `gh auth login` with admin rights on the repo, and it never prints the
+   values:
+   ```bash
+   npm run ci:secrets
+   ```
+   It sets `AIO_RUNTIME_NAMESPACE`, `AIO_RUNTIME_AUTH`, the `AIO_PROJECT_*` values and the OAuth
+   values (`CLIENTID`, `CLIENTSECRET`, `TECHNICALACCID`, `TECHNICALACCEMAIL`, `IMSORGID`,
+   `SCOPES`).
+4. **Optional:** to read the nav from a different site, set an `EDS_ORIGIN` variable on the `stage`
+   environment. The default is the `main` aem.page site.
