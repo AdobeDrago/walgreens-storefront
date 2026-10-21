@@ -99,3 +99,31 @@ different branch's nav.
 
 `aio app dev` also works once linked. Set `ASSET_BASE` to the local web server it prints, so the
 fragment points at the local bundle.
+
+## Deploy from GitHub Actions
+
+`.github/workflows/deploy-nav-app.yaml` deploys `nav-app/` to the **Stage** workspace on every push
+to `main` that touches `nav-app/`. You can also run it by hand from the Actions tab (**Deploy
+nav-app (Stage)** → **Run workflow**). It runs the tests, then the same optimized build as
+`npm run deploy`, then checks that the deployed action returns the nav with its script.
+
+One-time setup:
+
+1. **Add a CI credential to the Stage workspace.** In Developer Console, open the project, then the
+   **Stage** workspace. Choose **Add service → API → I/O Management API → OAuth Server-to-Server**
+   and save.
+2. **Refresh the local link** so `.env` picks up that credential. From `nav-app/`:
+   ```bash
+   aio app use --merge   # pick the same org → project → Stage
+   ```
+3. **Copy the workspace into GitHub secrets.** This creates the `stage` GitHub environment and sets
+   its secrets. It needs `gh auth login` with admin rights on the repo, and it never prints the
+   values:
+   ```bash
+   npm run ci:secrets
+   ```
+   It sets `AIO_RUNTIME_NAMESPACE`, `AIO_RUNTIME_AUTH`, the `AIO_PROJECT_*` values and the OAuth
+   values (`CLIENTID`, `CLIENTSECRET`, `TECHNICALACCID`, `TECHNICALACCEMAIL`, `IMSORGID`,
+   `SCOPES`).
+4. **Optional:** to read the nav from a different site, set an `EDS_ORIGIN` variable on the `stage`
+   environment. The default is the `main` aem.page site.

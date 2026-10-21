@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/dev.js",
     "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test test/*.test.js",
-    "deploy": "NODE_ENV=production aio app deploy --web-optimize"
+    "deploy": "NODE_ENV=production aio app deploy --web-optimize",
+    "ci:secrets": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/set-ci-secrets.js"
   },
   "dependencies": {
     "htm": "3.1.1",
