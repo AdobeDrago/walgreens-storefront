@@ -80,7 +80,7 @@ You need Node.js 22+ and the [Fastly CLI](https://www.fastly.com/documentation/r
 
 `npm run local` compiles the function to `bin/main.wasm` and serves it in front of
 `localhost:3000`. Every page then comes back with the nav already in `<header>`;
-`curl -sI http://127.0.0.1:7676/ | grep -i x-edge-nav` prints `stitched`. It writes its settings
+`curl -s -o /dev/null -D - http://127.0.0.1:7676/ | grep -i x-edge-nav` prints `stitched`. It writes its settings
 to `.local/` (gitignored) and leaves `fastly.toml` alone. Optional overrides:
 
 | Variable | Default |
@@ -120,7 +120,7 @@ Then:
    aio aem edge-functions build
    npm run deploy            # aio aem edge-functions deploy edge-nav
    ```
-5. **Verify** with `curl -sI https://<custom-domain>/ | grep -i x-edge-nav`, which should print
+5. **Verify** with `curl -s -o /dev/null -D - https://<custom-domain>/ | grep -i x-edge-nav`, which should print
    `stitched`. `npm run logs` tails the function's `console.log`.
 
 ## Limits worth knowing
