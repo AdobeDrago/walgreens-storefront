@@ -19,7 +19,7 @@ const escapeJson = (model) => JSON.stringify(model)
 
 /**
  * @param {object} model output of parseNav
- * @param {{ css: string[], js: string[] }} assets absolute URLs of the hydration bundle
+ * @param {{ css: string[], js: { src: string, module: boolean }[] }} assets the hydration bundle
  * @returns {string} HTML fragment
  */
 export function renderFragment(model, assets = { css: [], js: [] }) {
@@ -28,7 +28,9 @@ export function renderFragment(model, assets = { css: [], js: [] }) {
     ...assets.css.map((href) => `<link rel="stylesheet" href="${escapeAttr(href)}">`),
     `<div id="${ROOT_ID}">${markup}</div>`,
     `<script type="application/json" id="${DATA_ID}">${escapeJson(model)}</script>`,
-    ...assets.js.map((src) => `<script type="module" src="${escapeAttr(src)}"></script>`),
+    ...assets.js.map(({ src, module }) => (module
+      ? `<script type="module" src="${escapeAttr(src)}"></script>`
+      : `<script src="${escapeAttr(src)}" defer></script>`)),
   ].join('\n');
 }
 

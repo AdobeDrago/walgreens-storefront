@@ -24,24 +24,24 @@ const SIGN_IN_PATH = '/customer/login';
 const DESKTOP_QUERY = '(min-width: 768px)';
 
 function Icon({ name, className }) {
-  return html`<svg class=${`hdr-icon ${className}`} viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+  return html`<svg className=${`hdr-icon ${className}`} viewBox="0 0 32 32" aria-hidden="true" focusable="false">
     ${ICONS[name].map((d, i) => html`<path key=${i} d=${d} />`)}
   </svg>`;
 }
 
 /** Entries of a panel list: a link, a group with its own list, or a plain title. */
 function DropdownList({ nodes, level }) {
-  return html`<ul class=${`hdr-dd-list hdr-dd-list-l${level}`}>
+  return html`<ul className=${`hdr-dd-list hdr-dd-list-l${level}`}>
     ${nodes.map((node, i) => {
     if (node.children) {
-      return html`<li key=${i} class="hdr-dd-item hdr-dd-item-has-children">
-          ${node.href ? html`<a href=${node.href}>${node.label}</a>` : html`<span class="hdr-dd-group">${node.label}</span>`}
+      return html`<li key=${i} className="hdr-dd-item hdr-dd-item-has-children">
+          ${node.href ? html`<a href=${node.href}>${node.label}</a>` : html`<span className="hdr-dd-group">${node.label}</span>`}
           <${DropdownList} nodes=${node.children} level=${level + 1} />
         </li>`;
     }
-    if (node.href) return html`<li key=${i} class="hdr-dd-item"><a href=${node.href}>${node.label}</a></li>`;
+    if (node.href) return html`<li key=${i} className="hdr-dd-item"><a href=${node.href}>${node.label}</a></li>`;
     // panel titles: shown in the mobile menu only
-    return html`<li key=${i} class="hdr-dd-section">${node.label}</li>`;
+    return html`<li key=${i} className="hdr-dd-section">${node.label}</li>`;
   })}
   </ul>`;
 }
@@ -51,28 +51,28 @@ function NavItem({
 }) {
   const end = isLast ? ' hdr-nav-item-end' : '';
   if (!node.children) {
-    return html`<li class=${`hdr-nav-item${end}`}>
-      <a class="hdr-nav-link" href=${node.href}><span>${node.label}</span></a>
+    return html`<li className=${`hdr-nav-item${end}`}>
+      <a className="hdr-nav-link" href=${node.href}><span>${node.label}</span></a>
     </li>`;
   }
   const id = `hdr-panel-${index}`;
   // twenty or more entries get the wide panel, matching the EDS header block
   const mega = node.children.length >= 20;
-  return html`<li class=${`hdr-nav-item${end} ${mega ? 'hdr-nav-item-mega' : 'hdr-nav-item-dropdown'}`}>
-    <button type="button" class=${`hdr-nav-link hdr-nav-link-dd${open ? ' is-open' : ''}`}
+  return html`<li className=${`hdr-nav-item${end} ${mega ? 'hdr-nav-item-mega' : 'hdr-nav-item-dropdown'}`}>
+    <button type="button" className=${`hdr-nav-link hdr-nav-link-dd${open ? ' is-open' : ''}`}
       aria-expanded=${open} aria-controls=${id} onClick=${() => onToggle(index)}>
       <span>${node.label}</span><${Icon} name="chevron" className="hdr-nav-chev" />
     </button>
-    <div id=${id} class=${`hdr-dd ${mega ? 'hdr-dd-mega' : 'hdr-dd-dropdown'}`} hidden=${!open}>
+    <div id=${id} className=${`hdr-dd ${mega ? 'hdr-dd-mega' : 'hdr-dd-dropdown'}`} hidden=${!open}>
       <${DropdownList} nodes=${node.children} level=${2} />
     </div>
   </li>`;
 }
 
 function Store({ text, className }) {
-  return html`<div class=${`hdr-store ${className}`}>
+  return html`<div className=${`hdr-store ${className}`}>
     <${Icon} name="pin" className="hdr-store-icon" />
-    <div class="hdr-store-text"><p>${text}</p></div>
+    <div className="hdr-store-text"><p>${text}</p></div>
   </div>`;
 }
 
@@ -81,18 +81,18 @@ function Account({
 }) {
   // signed-out state: the authored sign-in link becomes the primary button at the top
   const signIn = account.links.find((l) => l.href?.replace(/\/$/, '').endsWith(SIGN_IN_PATH));
-  return html`<div class=${`hdr-account ${className}`}>
-    <button type="button" class=${`hdr-account-trigger${open ? ' is-open' : ''}`}
+  return html`<div className=${`hdr-account ${className}`}>
+    <button type="button" className=${`hdr-account-trigger${open ? ' is-open' : ''}`}
       aria-expanded=${open} aria-controls=${id} onClick=${() => onToggle(ACCOUNT)}>
       <${Icon} name="avatar" className="hdr-account-icon" />
-      <span class="hdr-account-text">${account.label}</span>
+      <span className="hdr-account-text">${account.label}</span>
     </button>
-    <div id=${id} class="hdr-dd hdr-dd-account" hidden=${!open}>
-      ${signIn && html`<div class="hdr-account-auth">
-        <a class="hdr-auth-signin-btn" href=${signIn.href}>${signIn.label}</a>
+    <div id=${id} className="hdr-dd hdr-dd-account" hidden=${!open}>
+      ${signIn && html`<div className="hdr-account-auth">
+        <a className="hdr-auth-signin-btn" href=${signIn.href}>${signIn.label}</a>
       </div>`}
-      <ul class="hdr-dd-list">
-        ${account.links.filter((l) => l !== signIn).map((l, i) => html`<li key=${i} class="hdr-dd-item"><a href=${l.href}>${l.label}</a></li>`)}
+      <ul className="hdr-dd-list">
+        ${account.links.filter((l) => l !== signIn).map((l, i) => html`<li key=${i} className="hdr-dd-item"><a href=${l.href}>${l.label}</a></li>`)}
       </ul>
     </div>
   </div>`;
@@ -155,24 +155,24 @@ export default function Nav({ model }) {
 
   const accountProps = { account, open: openPanel === ACCOUNT, onToggle: toggle };
 
-  return html`<div class="wnav" ref=${rootRef}>
-    <div class="site-chrome">
-      ${promo.length > 0 && html`<div class="promo-bar">
-        <ul class="promo-bar-list">
-          ${promo.map((p, i) => html`<li key=${i} class="promo-bar-item"><a href=${p.href}>${p.label}</a></li>`)}
+  return html`<div className="wnav" ref=${rootRef}>
+    <div className="site-chrome">
+      ${promo.length > 0 && html`<div className="promo-bar">
+        <ul className="promo-bar-list">
+          ${promo.map((p, i) => html`<li key=${i} className="promo-bar-item"><a href=${p.href}>${p.label}</a></li>`)}
         </ul>
       </div>`}
 
-      <div class="site-header" data-expanded=${menuOpen}>
-        <div class="hdr-top">
-          <div class="hdr-top-row">
-            <button type="button" class="hdr-menu" ref=${menuRef} aria-controls="hdr-nav"
+      <div className="site-header" data-expanded=${menuOpen}>
+        <div className="hdr-top">
+          <div className="hdr-top-row">
+            <button type="button" className="hdr-menu" ref=${menuRef} aria-controls="hdr-nav"
               aria-expanded=${menuOpen} aria-label=${menuOpen ? 'Close navigation' : 'Open navigation'}
               onClick=${() => setMenuOpen(!menuOpen)}>
-              <span class="hdr-menu-box"><${Icon} name="menu" className="hdr-menu-icon" /></span>
+              <span className="hdr-menu-box"><${Icon} name="menu" className="hdr-menu-icon" /></span>
             </button>
 
-            ${brand && html`<div class="hdr-logo">
+            ${brand && html`<div className="hdr-logo">
               <a href=${brand.href}>
                 <picture>
                   ${brand.sources.map((s, i) => html`<source key=${i} type=${s.type} media=${s.media} srcSet=${s.srcSet} />`)}
@@ -181,11 +181,11 @@ export default function Nav({ model }) {
               </a>
             </div>`}
 
-            <div class="hdr-search-wrap">
-              <form class="hdr-search" role="search" method="get" action=${search.action}>
-                <input class="hdr-search-input" type="text" name="q" autoComplete="off"
+            <div className="hdr-search-wrap">
+              <form className="hdr-search" role="search" method="get" action=${search.action}>
+                <input className="hdr-search-input" type="text" name="q" autoComplete="off"
                   placeholder=${search.label} aria-label=${search.label} />
-                <button type="submit" class="hdr-search-btn" aria-label=${search.label}>
+                <button type="submit" className="hdr-search-btn" aria-label=${search.label}>
                   <${Icon} name="search" className="hdr-search-icon" />
                 </button>
               </form>
@@ -194,18 +194,18 @@ export default function Nav({ model }) {
             ${store && html`<${Store} text=${store} className="wnav-desktop" />`}
             <${Account} ...${accountProps} id="hdr-account-menu" className="wnav-desktop" />
 
-            <div class="hdr-cart">
-              <p><a class="hdr-cart-link" href=${cart.href}><${Icon} name="cart" className="hdr-cart-icon" />${cart.label}</a></p>
+            <div className="hdr-cart">
+              <p><a className="hdr-cart-link" href=${cart.href}><${Icon} name="cart" className="hdr-cart-icon" />${cart.label}</a></p>
             </div>
           </div>
         </div>
 
-        <div class="hdr-bottom">
-          <div class="hdr-bottom-row">
+        <div className="hdr-bottom">
+          <div className="hdr-bottom-row">
             ${store && html`<${Store} text=${store} className="wnav-mobile" />`}
             <${Account} ...${accountProps} id="hdr-account-menu-m" className="wnav-mobile" />
-            <nav id="hdr-nav" class="hdr-nav" aria-label="Main">
-              <ul class="hdr-nav-list">
+            <nav id="hdr-nav" className="hdr-nav" aria-label="Main">
+              <ul className="hdr-nav-list">
                 ${nav.map((node, i) => html`<${NavItem} key=${i} node=${node} index=${i}
                   isLast=${i === nav.length - 1 && nav.length > 1}
                   open=${openPanel === i} onToggle=${toggle} />`)}

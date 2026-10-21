@@ -49,8 +49,10 @@ Fonts come from the page. Injected into the EDS site, the nav uses its Inter and
 On its own (`?format=page`) it falls back to system fonts, because aem.page doesn't send CORS headers
 for fonts.
 
-The hydration script is a cross-origin module script on the EDS page, so static hosting must answer
-with `Access-Control-Allow-Origin`. `npm run dev` does this.
+The hydration script loads cross-origin on the EDS page. App Builder static hosting sends no CORS
+headers, so it has to be a classic `<script defer>`, which is what aio's Parcel build emits. A module
+script would be blocked. The action copies whatever script tag the deployed `index.html` has, and
+`npm run dev` serves its assets the same way (classic script, no CORS).
 
 ## Local preview (no Adobe project needed)
 
@@ -85,8 +87,10 @@ different branch's nav.
    ```
 5. Deploy:
    ```bash
-   aio app deploy
+   npm run deploy
    ```
+   This runs `NODE_ENV=production aio app deploy --web-optimize`. A plain `aio app deploy` also
+   works, but it ships React's unminified development build (about 1.2 MB instead of about 230 KB).
    The output prints the action URL,
    `https://<namespace>.adobeioruntime.net/api/v1/web/nav-app/nav`, and the static hosting URL,
    `https://<namespace>.adobeio-static.net/`.

@@ -15,14 +15,15 @@ const ASSET_BASE = `http://localhost:${PORT}/assets/`;
 const build = await esbuild.build({
   entryPoints: { client: 'web-src/src/client.js' },
   bundle: true,
-  format: 'esm',
+  format: 'iife',
   minify: true,
   write: false,
   outdir: 'dist/dev',
   define: { 'process.env.NODE_ENV': '"production"' },
 });
 const files = Object.fromEntries(build.outputFiles.map((f) => [f.path.split('/').pop(), f.text]));
-files['index.html'] = '<link rel="stylesheet" href="client.css"><script type="module" src="client.js"></script>';
+// same shape aio's Parcel build deploys: a stylesheet and a classic deferred script
+files['index.html'] = '<link rel="stylesheet" href="/assets/client.css"><script src="/assets/client.js" defer=""></script>';
 
 const TYPES = { js: 'text/javascript', css: 'text/css', html: 'text/html' };
 
@@ -31,10 +32,8 @@ http.createServer(async (req, res) => {
   if (pathname.startsWith('/assets/')) {
     const name = pathname.slice('/assets/'.length);
     if (!files[name]) { res.writeHead(404).end(); return; }
-    // module scripts loaded cross-origin (from the EDS page) need CORS
-    res.writeHead(200, {
-      'Content-Type': TYPES[name.split('.').pop()], 'Access-Control-Allow-Origin': '*',
-    }).end(files[name]);
+    // no CORS here, like App Builder static hosting: classic scripts and stylesheets don't need it
+    res.writeHead(200, { 'Content-Type': TYPES[name.split('.').pop()] }).end(files[name]);
     return;
   }
   const format = { '/': 'page', '/fragment': 'fragment', '/json': 'json' }[pathname];

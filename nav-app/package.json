@@ -5,7 +5,8 @@
   "description": "Server-rendered React nav for the Walgreens storefront, deployed on Adobe App Builder",
   "scripts": {
     "dev": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/dev.js",
-    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test test/*.test.js"
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test test/*.test.js",
+    "deploy": "NODE_ENV=production aio app deploy --web-optimize"
   },
   "dependencies": {
     "htm": "3.1.1",

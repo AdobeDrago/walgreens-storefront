@@ -27,6 +27,8 @@ function assetBase(params) {
 /**
  * Parcel content-hashes the static bundle, so its CSS/JS URLs are read from the deployed
  * index.html rather than hard-coded. Without them the nav still renders, just without hydration.
+ * Static hosting sends no CORS headers, so a classic script (not a module) is what loads on the
+ * EDS page.
  */
 async function loadAssets(base) {
   if (!base) return { css: [], js: [] };
@@ -34,10 +36,15 @@ async function loadAssets(base) {
     const resp = await fetch(new URL('index.html', base));
     if (!resp.ok) throw new Error(`index.html ${resp.status}`);
     const doc = await resp.text();
-    const urls = (re) => [...doc.matchAll(re)].map((m) => new URL(m[1], base).href);
+    const abs = (url) => new URL(url, base).href;
+    const attr = (tag, name) => tag.match(new RegExp(`\\s${name}="([^"]*)"`))?.[1];
     return {
-      css: urls(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g),
-      js: urls(/<script[^>]+type="module"[^>]+src="([^"]+)"/g),
+      css: [...doc.matchAll(/<link\b[^>]*>/g)].map(([tag]) => tag)
+        .filter((tag) => attr(tag, 'rel') === 'stylesheet').map((tag) => abs(attr(tag, 'href'))),
+      // aio's Parcel build emits a classic deferred script; a dev build may emit a module
+      js: [...doc.matchAll(/<script\b[^>]*>/g)].map(([tag]) => tag)
+        .filter((tag) => attr(tag, 'src'))
+        .map((tag) => ({ src: abs(attr(tag, 'src')), module: attr(tag, 'type') === 'module' })),
     };
   } catch (e) {
     console.warn(`hydration assets unavailable from ${base}: ${e.message}`);

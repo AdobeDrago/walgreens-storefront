@@ -28,10 +28,11 @@ test('nav items keep panels, groups and direct links', () => {
 });
 
 test('fragment carries markup, escaped model and assets', () => {
-  const html = renderFragment(model, { css: ['https://a/x.css'], js: ['https://a/x.js'] });
+  const html = renderFragment(model, { css: ['https://a/x.css'], js: [{ src: 'https://a/x.js', module: false }, { src: 'https://a/m.js', module: true }] });
   assert.match(html, new RegExp(`<div id="${ROOT_ID}"><div class="wnav"`));
   assert.match(html, /<link rel="stylesheet" href="https:\/\/a\/x.css">/);
-  assert.match(html, /<script type="module" src="https:\/\/a\/x.js"><\/script>/);
+  assert.match(html, /<script src="https:\/\/a\/x.js" defer><\/script>/);
+  assert.match(html, /<script type="module" src="https:\/\/a\/m.js"><\/script>/);
   const json = html.match(new RegExp(`<script type="application/json" id="${DATA_ID}">(.*?)</script>`, 's'))[1];
   assert.doesNotMatch(json, /</);
   assert.deepEqual(JSON.parse(json), model);
