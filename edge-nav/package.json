@@ -1,0 +1,17 @@
+{
+  "name": "walgreens-edge-nav",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AEM Edge Function that stitches the server-rendered nav (nav-app) into EDS pages",
+  "type": "module",
+  "scripts": {
+    "build": "aio aem edge-functions build",
+    "deploy": "aio aem edge-functions deploy edge-nav",
+    "serve": "aio aem edge-functions serve",
+    "logs": "aio aem edge-functions tail-logs edge-nav",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@fastly/js-compute": "3.46.0"
+  }
+}

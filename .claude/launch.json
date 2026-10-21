@@ -25,6 +25,23 @@
         "dev"
       ],
       "port": 3100
+    },
+    {
+      "name": "edge-nav-serve",
+      "runtimeExecutable": "fastly",
+      "runtimeArgs": [
+        "compute",
+        "serve",
+        "--dir",
+        "edge-nav",
+        "--file",
+        "bin/main.wasm",
+        "--skip-build",
+        "--addr",
+        "127.0.0.1:7676",
+        "--non-interactive"
+      ],
+      "port": 7676
     }
   ]
 }

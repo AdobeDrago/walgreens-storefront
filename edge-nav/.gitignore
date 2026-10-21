@@ -1,0 +1,9 @@
+# aio edge-functions context (written by `aio aem edge-functions setup`), never commit
+.aio
+.env
+
+# Compute build output
+/bin
+/pkg
+
+node_modules/

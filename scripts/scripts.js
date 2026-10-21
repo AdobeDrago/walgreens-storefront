@@ -174,7 +174,9 @@ async function loadEager(doc) {
  * @param {Element} doc The container element
  */
 async function loadLazy(doc) {
-  loadHeader(doc.querySelector('header'));
+  const header = doc.querySelector('header');
+  // the edge-nav edge function may already have put the server-rendered nav here (edge-nav/)
+  if (!header.querySelector('#wnav-root')) loadHeader(header);
 
   const main = doc.querySelector('main');
   await loadSections(main);
