@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta
+  http-equiv="Content-Security-Policy"
+  content="script-src 'nonce-aem' 'strict-dynamic' 'unsafe-inline' http: https:; base-uri 'self'; object-src 'none';"
+  move-to-http-header="true"
+>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script nonce="aem" type="speculationrules">
+    {
+        "prerender": [{
+            "where": {
+                "href_matches": "/*"
+            },
+            "eagerness": "moderate"
+        }]
+    }
+</script>
+<script nonce="aem" type="importmap">
+    {
+        "imports": {
+            "@dropins/storefront-account/": "/scripts/__dropins__/storefront-account/",
+            "@dropins/storefront-auth/": "/scripts/__dropins__/storefront-auth/",
+            "@dropins/storefront-cart/": "/scripts/__dropins__/storefront-cart/",
+            "@dropins/storefront-checkout/": "/scripts/__dropins__/storefront-checkout/",
+            "@dropins/storefront-order/": "/scripts/__dropins__/storefront-order/",
+            "@dropins/storefront-payment-services/": "/scripts/__dropins__/storefront-payment-services/",
+            "@dropins/storefront-pdp/": "/scripts/__dropins__/storefront-pdp/",
+            "@dropins/storefront-recommendations/": "/scripts/__dropins__/storefront-recommendations/",
+            "@dropins/storefront-wishlist/": "/scripts/__dropins__/storefront-wishlist/",
+            "@dropins/storefront-personalization/": "/scripts/__dropins__/storefront-personalization/",
+            "@dropins/storefront-product-discovery/": "/scripts/__dropins__/storefront-product-discovery/",
+            "@dropins/tools/": "/scripts/__dropins__/tools/"
+        }
+    }
+</script>
+
+<link rel="stylesheet" href="/styles/styles.css" />
+
+<script nonce="aem" type="module">
+    if (!(HTMLScriptElement.supports?.('importmap'))) {
+        import('/scripts/__dropins__/tools/shims/importmap.js');
+    }
+</script>
+
+<script nonce="aem" src="/scripts/aem.js" type="module"></script>
+<script nonce="aem" src="/scripts/scripts.js" type="module"></script>
+<script nonce="aem" src="/scripts/commerce.js" type="module"></script>
+
+<link rel="modulepreload" href="/scripts/__dropins__/tools/lib/aem/configs.js" />
+<link rel="modulepreload" href="/scripts/initializers/index.js" />
+<link rel="modulepreload" href="/scripts/initializers/auth.js" />
+<link rel="modulepreload" href="/scripts/initializers/personalization.js" />
+<link rel="modulepreload" href="/scripts/__dropins__/storefront-auth/api.js" />
+<link rel="modulepreload" href="/scripts/__dropins__/tools/event-bus.js" />
+<link rel="modulepreload" href="/scripts/__dropins__/tools/fetch-graphql.js" />
+<link rel="modulepreload" href="/scripts/__dropins__/tools/initializer.js" />
+<link rel="modulepreload" href="/scripts/__dropins__/tools/preact.js" />
+<link rel="modulepreload" href="/scripts/__dropins__/tools/preact-compat.js" />
+<link rel="modulepreload" href="/scripts/__dropins__/tools/preact-hooks.js" />
+<link rel="modulepreload" href="/scripts/__dropins__/tools/components.js" />
+</head>
+<body>
+<header></header>
+<main>
+<div><h1 id="header-block">Header Block</h1>
+<h2 id="overview">Overview</h2>
+<p>The site nav is not built by this block. It comes from <strong>nav-app</strong>: the Walgreens nav as a
+server-rendered React app on Adobe App Builder (<code>nav-app/</code>), part of the edge-stitched nav demo
+(<code>tools/edge-nav-demo/index.html</code>).</p>
+<ul>
+<li><strong>Through the edge-nav edge function</strong> (<code>edge-nav/</code>), the nav is already inside <code>&#x3C;header></code> in
+the first HTML response. <code>scripts/scripts.js</code> sees <code>#wnav-root</code> and doesn't load this block.</li>
+<li><strong>Everywhere else</strong> (aem.page and aem.live without the edge function, or an edge-nav fallback),
+this block fetches the same nav-app fragment in the browser and appends it to <code>&#x3C;header></code>. React
+then makes it interactive.</li>
+</ul>
+<p>The block never renders an EDS-built nav. If the nav-app URL fails, the header stays empty and the
+error is logged. The EDS-built Walgreens header that used to live here, with Commerce search,
+account and mini-cart, is in git history at <code>ae32f6d</code>.</p>
+<h2 id="nav-document">Nav document</h2>
+<p>Authors still edit <code>/nav</code> as before. nav-app reads <code>/nav.plain.html</code> on the server
+(<code>nav-app/src/parse-nav.js</code>, same section order as before: promo, brand, search, store, account,
+nav, cart).</p>
+<h2 id="integration">Integration</h2>
+<ul>
+<li><strong>Fragment URL:</strong> <code>NAV_APP_URL</code> in <code>header.js</code> (the App Builder Stage action
+<code>…/api/v1/web/nav-app/nav</code>).</li>
+<li><strong>The fragment</strong> brings its own stylesheet, markup (<code>#wnav-root</code>), model (<code>#wnav-data</code>) and
+hydration script from App Builder static hosting. Its <code>&#x3C;script></code> is re-created after insertion so
+it runs; scripts created by a nonce'd script are allowed by the page's <code>'strict-dynamic'</code> CSP.</li>
+<li><strong>Not wired:</strong> the Commerce drop-ins (product-discovery search popover, signed-in account state,
+mini-cart, cart count). Search submits <code>GET /search?q=</code>.</li>
+</ul>
+<h3 id="metadata">Metadata</h3>
+<p>None.</p>
+<h2 id="behavior">Behavior</h2>
+<p>Dropdowns, mobile menu, Escape and outside-click handling are provided by nav-app's React
+component (<code>nav-app/src/Nav.js</code>), not by this block.</p>
+<h2 id="files">Files</h2>
+<ul>
+<li><code>header.js</code> — removes the block element and, unless the nav is already present, fetches and
+appends the nav-app fragment</li>
+<li><code>header.css</code> — keeps the block element out of the layout until it is removed</li>
+</ul></div>
+</main>
+<footer></footer>
+</body>
+</html>

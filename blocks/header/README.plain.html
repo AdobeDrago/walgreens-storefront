@@ -1,0 +1,40 @@
+<div><h1 id="header-block">Header Block</h1>
+<h2 id="overview">Overview</h2>
+<p>The site nav is not built by this block. It comes from <strong>nav-app</strong>: the Walgreens nav as a
+server-rendered React app on Adobe App Builder (<code>nav-app/</code>), part of the edge-stitched nav demo
+(<code>tools/edge-nav-demo/index.html</code>).</p>
+<ul>
+<li><strong>Through the edge-nav edge function</strong> (<code>edge-nav/</code>), the nav is already inside <code>&#x3C;header></code> in
+the first HTML response. <code>scripts/scripts.js</code> sees <code>#wnav-root</code> and doesn't load this block.</li>
+<li><strong>Everywhere else</strong> (aem.page and aem.live without the edge function, or an edge-nav fallback),
+this block fetches the same nav-app fragment in the browser and appends it to <code>&#x3C;header></code>. React
+then makes it interactive.</li>
+</ul>
+<p>The block never renders an EDS-built nav. If the nav-app URL fails, the header stays empty and the
+error is logged. The EDS-built Walgreens header that used to live here, with Commerce search,
+account and mini-cart, is in git history at <code>ae32f6d</code>.</p>
+<h2 id="nav-document">Nav document</h2>
+<p>Authors still edit <code>/nav</code> as before. nav-app reads <code>/nav.plain.html</code> on the server
+(<code>nav-app/src/parse-nav.js</code>, same section order as before: promo, brand, search, store, account,
+nav, cart).</p>
+<h2 id="integration">Integration</h2>
+<ul>
+<li><strong>Fragment URL:</strong> <code>NAV_APP_URL</code> in <code>header.js</code> (the App Builder Stage action
+<code>…/api/v1/web/nav-app/nav</code>).</li>
+<li><strong>The fragment</strong> brings its own stylesheet, markup (<code>#wnav-root</code>), model (<code>#wnav-data</code>) and
+hydration script from App Builder static hosting. Its <code>&#x3C;script></code> is re-created after insertion so
+it runs; scripts created by a nonce'd script are allowed by the page's <code>'strict-dynamic'</code> CSP.</li>
+<li><strong>Not wired:</strong> the Commerce drop-ins (product-discovery search popover, signed-in account state,
+mini-cart, cart count). Search submits <code>GET /search?q=</code>.</li>
+</ul>
+<h3 id="metadata">Metadata</h3>
+<p>None.</p>
+<h2 id="behavior">Behavior</h2>
+<p>Dropdowns, mobile menu, Escape and outside-click handling are provided by nav-app's React
+component (<code>nav-app/src/Nav.js</code>), not by this block.</p>
+<h2 id="files">Files</h2>
+<ul>
+<li><code>header.js</code> — removes the block element and, unless the nav is already present, fetches and
+appends the nav-app fragment</li>
+<li><code>header.css</code> — keeps the block element out of the layout until it is removed</li>
+</ul></div>
