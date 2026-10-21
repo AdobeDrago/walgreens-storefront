@@ -219,7 +219,7 @@
 
   .lane.planned { border-style: dashed; background: transparent; box-shadow: none; }
 
-  .lane h4 {
+  .lane h3 {
     margin: 0 0 10px;
     font-size: 13px;
     letter-spacing: 0.05em;
@@ -354,13 +354,13 @@
 
   <div class="diagram" role="img" aria-label="Authors edit /nav in EDS. The App Builder action fetches and parses it, renders React to HTML and returns a fragment. In Part 2, an edge function puts the fragment into the page's header.">
     <div class="lane">
-      <h4>EDS (content)</h4>
+      <h3>EDS (content)</h3>
       <p>Authors edit <code>/nav</code> in DA, as they do today.</p>
       <p style="margin-top:8px">Served as <code>/nav.plain.html</code>.</p>
     </div>
     <div class="arrow">fetch</div>
     <div class="lane">
-      <h4>App Builder · Stage</h4>
+      <h3>App Builder · Stage</h3>
       <ol>
         <li>Web action <code>nav-app/nav</code> fetches <code>&lt;EDS_ORIGIN&gt;/nav.plain.html</code></li>
         <li><code>parse-nav.js</code> turns it into a JSON model</li>
@@ -375,7 +375,7 @@
     </div>
     <div class="arrow">fragment (cached)</div>
     <div class="lane planned">
-      <h4>Part 2 · planned</h4>
+      <h3>Part 2 · planned</h3>
       <p>An AEM Edge Function on the managed CDN fetches the page from EDS and the fragment, puts the
       fragment into <code>&lt;header&gt;</code>, and returns one HTML response.</p>
       <p style="margin-top:8px">In the browser, <code>web-src.&lt;hash&gt;.js</code> calls
