@@ -11,3 +11,6 @@ node_modules/
 # EDS renders of README.md written by local tooling
 README.html
 README.plain.html
+
+# npm run local (scripts/serve-local.js)
+/.local

@@ -9,7 +9,8 @@
     "deploy": "aio aem edge-functions deploy edge-nav",
     "serve": "aio aem edge-functions serve",
     "logs": "aio aem edge-functions tail-logs edge-nav",
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "local": "node scripts/serve-local.js"
   },
   "dependencies": {
     "@fastly/js-compute": "3.46.0"
