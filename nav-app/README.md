@@ -120,6 +120,7 @@ One-time setup:
    its secrets. It needs `gh auth login` with admin rights on the repo, and it never prints the
    values:
    ```bash
+   npm run ci:secrets -- --check   # lists what was found, sets nothing
    npm run ci:secrets
    ```
    It sets `AIO_RUNTIME_NAMESPACE`, `AIO_RUNTIME_AUTH`, the `AIO_PROJECT_*` values and the OAuth

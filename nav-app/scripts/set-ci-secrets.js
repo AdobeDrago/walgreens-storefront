@@ -4,52 +4,27 @@
  * are never printed.
  *
  *   npm run ci:secrets
+ *   npm run ci:secrets -- --check   only report which values were found; GitHub is not touched
  *
  * Needs an OAuth server-to-server credential on the workspace (see README): after adding it, run
  * `aio app use` again and aio writes it to .env as AIO_ims_contexts_<name>_… keys.
  */
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { parseEnv, collectSecrets } from './ci-secrets-lib.js';
 
 const ENVIRONMENT = 'stage';
 
-function readEnv(file) {
-  return Object.fromEntries(readFileSync(file, 'utf8').split('\n')
-    .map((line) => line.match(/^([A-Za-z_][\w]*)=(.*)$/))
-    .filter(Boolean)
-    .map(([, key, value]) => [key, value.replace(/^(['"])(.*)\1$/, '$2')]));
-}
-
-const env = readEnv('.env');
-const { project } = JSON.parse(readFileSync('.aio', 'utf8'));
-
-const secrets = {
-  AIO_RUNTIME_NAMESPACE: env.AIO_runtime_namespace,
-  AIO_RUNTIME_AUTH: env.AIO_runtime_auth,
-  AIO_PROJECT_ID: project.id,
-  AIO_PROJECT_NAME: project.name,
-  AIO_PROJECT_ORG_ID: project.org.id,
-  AIO_PROJECT_WORKSPACE_ID: project.workspace.id,
-  AIO_PROJECT_WORKSPACE_NAME: project.workspace.name,
-  AIO_PROJECT_WORKSPACE_DETAILS_SERVICES: JSON.stringify(project.workspace.details.services),
-};
-
-// OAuth server-to-server credential, as `aio app use` stores it (`__` encodes `_` in key names)
-const [, context] = Object.keys(env).map((k) => k.match(/^AIO_ims_contexts_(.+?)_client__id$/)).find(Boolean) || [];
-const ims = (field) => env[`AIO_ims_contexts_${context}_${field}`];
-const list = (value) => {
-  try { return JSON.parse(value); } catch { return value ? value.split(',') : []; }
-};
-Object.assign(secrets, {
-  CLIENTID: ims('client__id'),
-  CLIENTSECRET: list(ims('client__secrets'))[0],
-  TECHNICALACCID: ims('technical__account__id'),
-  TECHNICALACCEMAIL: ims('technical__account__email'),
-  IMSORGID: ims('ims__org__id') || project.org.ims_org_id,
-  SCOPES: list(ims('scopes')).join(','),
-});
+const secrets = collectSecrets(
+  parseEnv(readFileSync('.env', 'utf8')),
+  JSON.parse(readFileSync('.aio', 'utf8')),
+);
 
 const missing = Object.entries(secrets).filter(([, v]) => !v).map(([k]) => k);
+if (process.argv.includes('--check')) {
+  Object.entries(secrets).forEach(([name, value]) => console.log(`${value ? 'found  ' : 'MISSING'} ${name}`));
+  process.exit(missing.length ? 1 : 0);
+}
 if (missing.length) {
   console.error(`missing values for: ${missing.join(', ')}. Add the OAuth server-to-server credential to the workspace, then run \`aio app use\` again (README).`);
   process.exit(1);
