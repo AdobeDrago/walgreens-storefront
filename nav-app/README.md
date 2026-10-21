@@ -10,7 +10,8 @@ server by an Adobe App Builder (I/O Runtime) web action, then hydrated in the br
 This folder is not served by EDS (`.hlxignore`) and not linted by the storefront's ESLint.
 
 For the demo's design decisions, verification results and the Part 2 hand-off, see
-[`tools/edge-nav-demo/README.md`](../tools/edge-nav-demo/README.md).
+[`tools/edge-nav-demo/index.html`](../tools/edge-nav-demo/index.html), served at
+https://main--walgreens-storefront--adobedrago.aem.page/tools/edge-nav-demo/index.html.
 
 ## How it works
 
