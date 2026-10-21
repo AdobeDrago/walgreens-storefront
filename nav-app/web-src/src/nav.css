@@ -1,269 +1,727 @@
-/* Scoped to .wnav. Uses the storefront's design tokens when injected into the EDS page and falls
-   back to literal values when the nav is viewed on its own. */
-.wnav {
-  --wnav-crimson: var(--palette-brand-crimson, #e31837);
-  --wnav-text: var(--text-body-primary, #1f1f1f);
-  --wnav-muted: var(--palette-gray-600, #5c5c5c);
-  --wnav-line: var(--palette-gray-200, #e2e2e2);
-  --wnav-bg: var(--palette-brand-white, #fff);
-  --wnav-shadow: 0 8px 24px rgb(0 0 0 / 14%);
+/* nav-app — the EDS header block's styles (blocks/header/header.css) scoped to .wnav, without the
+   Commerce drop-in panels (search popover, mini-cart, signed-in account state).
+   Heights: promo 40 + top row 73 + nav row 40 = 153 (>=768) / promo 40 + 73 + 43 = 156 (<768).
+   Mobile first; the desktop layout starts at the source's 768px breakpoint. Every size is px. */
 
-  position: relative;
-  font-family: var(--body-font-family, inter, system-ui, sans-serif);
-  font-size: 14px;
-  color: var(--wnav-text);
-  background: var(--wnav-bg);
-  border-bottom: 1px solid var(--wnav-line);
+/* Walgreens brand tokens (styles/brand.css). Declared on the nav so it renders the same injected into the
+   EDS page or served on its own; the fonts come from the page (EDS styles/fonts.css). */
+.wnav {
+  --palette-brand-white: #fff;
+  --palette-brand-neutral: #f4f2ef;
+  --palette-brand-charcoal: #413d3c;
+  --palette-brand-crimson: #a32a33;
+  --palette-gray-100: #d9dada;
+  --palette-gray-300: #989090;
+  --palette-gray-400: #707575;
+  --palette-gray-500: #414646;
+  --palette-gray-600: #0a1414;
+  --surface-button-primary: var(--palette-brand-crimson);
+  --surface-button-primary-hover: var(--palette-brand-white);
+  --text-button-primary: var(--palette-brand-white);
+  --border-button-primary: var(--palette-brand-crimson);
+  --border-button-focus: var(--palette-gray-600);
+  --text-body-primary: var(--palette-brand-charcoal);
+  --text-link-default: var(--palette-brand-charcoal);
+  --radius-pill: 45px;
+  --body-font-family: inter, inter-fallback, sans-serif;
+  --legacy-font-family: "Source Sans Pro", source-sans-pro-fallback, helvetica, arial, sans-serif;
+  --nav-height: 156px;
 }
 
-.wnav ul {
+/* stylelint-disable no-descending-specificity -- breakpoint overrides follow the base cascade by design */
+
+.wnav {
+  --hdr-shadow-nav: rgb(207 207 207 / 50%) 0 1px 2px 0;
+  --hdr-shadow-panel: rgb(0 0 0 / 15%) 0 4px 12px;
+  --hdr-radius-search: 50px;
+
+  position: relative;
+  z-index: 20;
+  font-family: var(--body-font-family);
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--text-body-primary);
+}
+
+/* resets */
+.wnav *,
+.wnav *::before,
+.wnav *::after {
+  box-sizing: border-box;
+}
+
+.wnav :where(p, ul) {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.wnav a {
-  color: inherit;
+.wnav a:any-link {
+  color: var(--text-body-primary);
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.wnav a:any-link:hover {
   text-decoration: none;
 }
 
-.wnav a:hover {
-  text-decoration: underline;
-}
-
-.wnav button {
+.wnav :is(.hdr-menu, .hdr-search-btn, .hdr-nav-link-dd, .hdr-account-trigger) {
   font: inherit;
   color: inherit;
   background: none;
   border: 0;
+  margin: 0;
   padding: 0;
   cursor: pointer;
 }
 
-.wnav :focus-visible {
-  outline: 2px solid var(--wnav-crimson);
-  outline-offset: 2px;
-}
-
-.wnav .wnav-icon {
-  width: 24px;
-  height: 24px;
-}
-
-.wnav .wnav-chev {
-  width: 14px;
-  height: 14px;
-  margin-left: 4px;
-  transition: transform 0.15s;
-}
-
-.wnav [aria-expanded='true'] > .wnav-chev {
-  transform: rotate(180deg);
-}
-
-.wnav .wnav-sr {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-/* promo bar */
-.wnav .wnav-promo {
-  background: var(--wnav-crimson);
-  color: #fff;
-  font-size: 13px;
-}
-
-.wnav .wnav-promo ul {
-  display: flex;
-  gap: 24px;
-  overflow-x: auto;
-  padding: 8px 16px;
-  white-space: nowrap;
-}
-
-/* top row */
-.wnav .wnav-top {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px 16px;
-  padding: 12px 16px;
-}
-
-.wnav .wnav-brand img {
+.wnav .hdr-icon {
   display: block;
-  height: 32px;
-  width: auto;
+  fill: currentcolor;
 }
 
-.wnav .wnav-search {
-  order: 10;
-  flex: 1 1 100%;
-}
-
-.wnav .wnav-search input {
-  box-sizing: border-box;
-  width: 100%;
-  height: 40px;
-  padding: 0 16px;
-  font: inherit;
-  border: 1px solid var(--wnav-line);
-  border-radius: 999px;
-}
-
-.wnav .wnav-store {
+.wnav :is(.hdr-dd, .hdr-cart, li, p)[hidden] {
   display: none;
-  color: var(--wnav-muted);
 }
 
-.wnav .wnav-account {
+/* ---- promo bar (40px, neutral) ---- */
+.wnav .promo-bar {
+  background: var(--palette-brand-neutral);
+  height: 40px;
+  overflow: hidden;
+}
+
+.wnav .promo-bar ul {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  height: 40px;
+  gap: 25px;
+  overflow: hidden;
+  margin: 0 auto;
+  width: 90%;
+  max-width: 1440px;
+}
+
+.wnav .promo-bar li {
+  line-height: 18.4px; /* source 1.15rem at a 16px root */
+  text-align: center;
+  font-size: 14px;
+}
+
+.wnav .promo-bar li:not(:first-child) {
+  display: none; /* source: promo items 2..n are hide-on-mobile */
+}
+
+.wnav .promo-bar a:any-link {
+  color: var(--palette-gray-500);
+  font-weight: 700;
+}
+
+/* ---- top row ---- */
+.wnav .site-header {
+  background: transparent;
   position: relative;
+}
+
+.wnav .hdr-top {
+  position: relative; /* anchors the mini-cart panel under the row */
+  background: var(--palette-brand-white);
+  min-height: 73px;
+  padding: 5px 15px;
+}
+
+.wnav .hdr-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  height: 63px;
+}
+
+.wnav .hdr-menu {
+  width: 30px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.wnav .hdr-menu-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  overflow: hidden;
+}
+
+.wnav .hdr-menu-icon {
+  width: 58px; /* sprite glyph is 12/32 of its box: 58px renders the 3-bar 20px hamburger */
+  height: 58px;
+  flex: none;
+}
+
+.wnav .hdr-menu:focus-visible {
+  outline: 2px solid var(--border-button-focus);
+}
+
+.wnav .hdr-logo {
+  display: block;
+  width: 38px;
+  height: 40px;
+  padding: 7px 0;
+  flex: 0 0 auto;
+}
+
+.wnav .hdr-logo p {
+  line-height: 0;
+}
+
+.wnav .hdr-logo a:any-link {
+  display: block;
+  border-radius: 2px;
+}
+
+.wnav .hdr-logo img {
+  display: block;
+  width: 38px;
+  height: 26px;
+}
+
+/* search pill (product-discovery popover underneath) */
+.wnav .hdr-search-wrap {
+  flex: 0 0 194px;
+  width: 194px;
+}
+
+.wnav .hdr-search {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 47px;
+  margin: 0;
+  background: var(--palette-brand-white);
+  border: 1px solid var(--palette-gray-300);
+  border-radius: var(--hdr-radius-search);
+  overflow: hidden;
+}
+
+.wnav .hdr-search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 45px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  background: transparent;
+  padding: 12px 20px;
+  font: 700 16px/1 var(--body-font-family);
+  color: var(--text-body-primary);
+}
+
+.wnav .hdr-search-input::placeholder {
+  color: var(--palette-gray-400);
+  font: 700 16px/1 var(--legacy-font-family);
+  opacity: 1;
+}
+
+/* focus ring follows the pill: the source's 2px #0a1414 inset ring, drawn on the rounded form instead of the square
+   input (the source clips a square ring inside the pill) */
+.wnav .hdr-search-input:focus-visible {
+  outline: 0;
+}
+
+.wnav .hdr-search:has(.hdr-search-input:focus-visible) {
+  outline: 2px solid var(--border-button-focus);
+  outline-offset: -2px;
+}
+
+.wnav .hdr-search-btn {
+  flex: 0 0 50px;
+  width: 50px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 20px 0 0;
+  color: #000;
+}
+
+.wnav .hdr-search-btn:focus-visible {
+  outline: 2px solid var(--border-button-focus);
+  outline-offset: -2px;
+}
+
+.wnav .hdr-search-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* store — authored store text with a pin, not a control */
+.wnav .hdr-store {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  text-align: left;
   margin-left: auto;
 }
 
-.wnav .wnav-account-trigger,
-.wnav .wnav-link {
+.wnav .hdr-store-icon {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+}
+
+.wnav .hdr-store-text p {
+  font: 700 14px/15px var(--body-font-family);
+  color: var(--text-link-default);
+  white-space: nowrap;
+}
+
+/* account trigger + dropdown */
+.wnav .hdr-account {
+  position: relative;
+  margin-left: 15px;
+}
+
+.wnav .hdr-account-trigger {
   display: inline-flex;
   align-items: center;
-  font-weight: 600;
+  gap: 6px;
+  height: 30px;
+  padding: 0 5px 0 0;
+  border-radius: 2px;
+  color: var(--text-body-primary);
 }
 
-.wnav .wnav-cart {
+.wnav .hdr-account-icon {
+  width: 24px;
+  height: 24px;
+  flex: none;
+}
+
+.wnav .hdr-account-text {
+  font: 700 14px/15px var(--body-font-family);
+  color: var(--text-link-default);
+  white-space: nowrap;
+}
+
+/* cart link (+ item count); the mini-cart panel is a sibling inside .hdr-cart, so every rule is keyed on the link */
+.wnav .hdr-cart {
+  position: relative;
+  margin-left: 0;
+  flex: 0 0 auto;
+}
+
+.wnav .hdr-cart > p {
+  line-height: 0;
+}
+
+.wnav .hdr-cart-link:any-link {
+  position: relative;
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 30px;
+  padding: 0 5px 0 0;
+  border-radius: 2px;
+  font-size: 0; /* the authored label stays in the accessibility tree; the glyph is the visible affordance */
 }
 
-/* panels */
-.wnav .wnav-panel {
+.wnav .hdr-cart-icon {
+  width: 32px;
+  height: 32px;
+}
+
+/* ---- nav row ---- */
+.wnav .hdr-bottom {
+  background: var(--palette-brand-white);
+  box-shadow: var(--hdr-shadow-nav);
+  min-height: 43px;
+  padding: 0 15px;
+  position: relative;
+}
+
+.wnav .hdr-bottom-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 5px;
+  min-height: 43px;
+}
+
+/* row 2 on mobile: store (left) + account (right), 43px, top-aligned */
+.wnav .hdr-bottom .hdr-store {
+  margin-left: 0;
+  height: 30px;
+}
+
+.wnav .hdr-bottom .hdr-store-text p {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wnav .hdr-bottom .hdr-account {
+  margin-left: auto;
+}
+
+.wnav .hdr-bottom .hdr-account-trigger {
+  gap: 14px;
+  padding: 0 10px 0 0;
+}
+
+.wnav .hdr-bottom .hdr-account-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.wnav .hdr-bottom .hdr-account-text {
+  font-weight: 900;
+  line-height: 17px;
+}
+
+/* the nav is the hamburger menu panel on mobile (aria-expanded on .site-header) */
+.wnav .hdr-nav {
+  display: none;
   position: absolute;
-  z-index: 20;
   left: 0;
   right: 0;
-  padding: 16px;
-  background: var(--wnav-bg);
-  box-shadow: var(--wnav-shadow);
+  top: 100%;
+  z-index: 30;
+  background: var(--palette-brand-white);
+  box-shadow: var(--hdr-shadow-panel);
+  max-height: calc(100vh - var(--nav-height));
+  overflow-y: auto;
 }
 
-.wnav .wnav-panel[hidden] {
-  display: none;
+.wnav .site-header[data-expanded="true"] .hdr-nav {
+  display: block;
 }
 
-.wnav .wnav-panel-account {
+.wnav .hdr-nav-list {
+  display: block;
+  margin: 0;
+  width: auto;
+  padding: 8px 0;
+}
+
+.wnav .hdr-nav-item {
+  position: relative;
+}
+
+.wnav .hdr-nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3px;
+  width: 100%;
+  padding: 12px 16px;
+  font: 600 16px/24px var(--body-font-family);
+  color: var(--text-body-primary);
+  text-align: left;
+  border-radius: 0;
+  white-space: normal;
+  cursor: pointer;
+}
+
+.wnav a.hdr-nav-link:any-link {
+  border-radius: 0;
+}
+
+.wnav .hdr-nav-link-dd:focus-visible,
+.wnav .hdr-account-trigger:focus-visible {
+  outline: 2px solid var(--border-button-focus);
+}
+
+.wnav .hdr-nav-chev {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+  transform: rotate(0deg);
+  transition: transform 0.05s;
+}
+
+.wnav .hdr-nav-link-dd.is-open .hdr-nav-chev {
+  transform: rotate(90deg);
+}
+
+/* dropdown panels (js: `hidden` toggled, aria-expanded on the trigger) */
+.wnav .hdr-dd {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  z-index: 30;
+  background: var(--palette-brand-white);
+  box-shadow: var(--hdr-shadow-panel);
+  min-width: 280px;
+  padding: 8px 0;
+}
+
+.wnav .hdr-dd-account {
   left: auto;
   right: 0;
-  width: 240px;
+  width: 280px;
 }
 
-.wnav .wnav-panel li {
-  padding: 4px 0;
-}
-
-.wnav .wnav-title,
-.wnav .wnav-group-label {
-  display: block;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-
-.wnav .wnav-group {
-  break-inside: avoid;
-  margin-bottom: 12px;
-}
-
-/* nav row: a drawer under the top row on mobile */
-.wnav .wnav-nav {
-  display: none;
-  border-top: 1px solid var(--wnav-line);
-}
-
-.wnav[data-menu-open='true'] .wnav-nav {
-  display: block;
-}
-
-.wnav .wnav-nav > ul {
-  display: flex;
-  flex-direction: column;
-}
-
-.wnav .wnav-item {
-  border-bottom: 1px solid var(--wnav-line);
-}
-
-.wnav .wnav-item > .wnav-link {
-  justify-content: space-between;
-  width: 100%;
-  padding: 14px 16px;
-  box-sizing: border-box;
-}
-
-.wnav .wnav-nav .wnav-panel {
+.wnav .hdr-nav .hdr-dd {
   position: static;
   box-shadow: none;
-  padding-top: 0;
+  min-width: 0;
+  padding: 0 0 8px 16px;
+  background: var(--palette-brand-neutral);
 }
 
-@media (width >= 768px) {
-  .wnav .wnav-menu {
+.wnav .hdr-dd-list a:any-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 32px 8px 16px;
+  font: 600 14px/16px var(--body-font-family);
+  color: var(--text-body-primary);
+  text-align: left;
+  width: 100%;
+  border-radius: 0;
+}
+
+.wnav .hdr-dd-list a:any-link:hover {
+  background: var(--palette-brand-neutral);
+}
+
+.wnav .hdr-dd-list a:any-link:focus-visible {
+  outline-offset: -2px;
+}
+
+.wnav .hdr-dd-section {
+  display: block; /* panel title — shown in the mobile menu only */
+  padding: 8px 16px;
+  font: 700 14px/16px var(--body-font-family);
+}
+
+.wnav .hdr-dd-group {
+  display: block;
+  padding: 8px 16px;
+  font: 600 14px/16px var(--body-font-family);
+}
+
+.wnav .hdr-dd-list-l2,
+.wnav .hdr-dd-list-l2 > .hdr-dd-item,
+.wnav .hdr-dd-list-l2 > .hdr-dd-item-has-children,
+.wnav .hdr-dd-mega .hdr-dd-list-l2 > .hdr-dd-item {
+  display: block;
+  flex: none;
+}
+
+/* storefront auth state at the top of the account panel (signed out: sign-in pill; signed in: greeting + sign out) */
+.wnav .hdr-account-auth {
+  padding: 8px 16px;
+}
+
+.wnav .hdr-account-auth:not(:has(> :not([hidden]))) {
+  display: none;
+}
+
+.wnav a.hdr-auth-signin-btn:any-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid var(--border-button-primary);
+  border-radius: var(--radius-pill);
+  background: var(--surface-button-primary);
+  color: var(--text-button-primary);
+  font: 700 16px/20px var(--body-font-family);
+  letter-spacing: normal;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.wnav a.hdr-auth-signin-btn:any-link[hidden] {
+  display: none;
+}
+
+.wnav a.hdr-auth-signin-btn:any-link:is(:hover, :focus-visible) {
+  background: var(--surface-button-primary-hover);
+  color: var(--palette-brand-crimson);
+}
+
+.wnav a.hdr-auth-signin-btn:any-link:focus-visible {
+  outline: 2px solid var(--border-button-focus);
+  outline-offset: 2px;
+}/* ---- >=768: desktop rows (logo at x 25, search pill 75..800, right group store / account / cart) ---- */
+
+/* breakpoint-exception: source parity (lsg 768px) */
+@media (min-width: 768px) {
+  .wnav .promo-bar li:not(:first-child) {
+    display: block;
+  }
+
+  .wnav .hdr-menu {
     display: none;
   }
 
-  .wnav .wnav-search {
-    order: 0;
-    flex: 1 1 320px;
-    max-width: 560px;
+  .wnav .hdr-logo {
+    margin-left: 10px;
   }
 
-  .wnav .wnav-store {
-    display: inline;
-  }
-
-  .wnav .wnav-top {
-    flex-wrap: nowrap;
-    padding: 12px 24px;
-  }
-
-  .wnav .wnav-nav,
-  .wnav[data-menu-open='true'] .wnav-nav {
-    display: block;
+  .wnav .hdr-search-wrap {
     position: relative;
+    flex: 0 1 725px;
+    width: 725px;
+    margin-left: 2px;
   }
 
-  .wnav .wnav-nav > ul {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 4px 24px;
-    padding: 0 24px;
+  .wnav .hdr-search-input::placeholder {
+    font: 400 16px/1 var(--body-font-family);
   }
 
-  .wnav .wnav-item {
-    border-bottom: 0;
+  .wnav .hdr-search-btn {
+    padding-left: 3px;
   }
 
-  .wnav .wnav-item-end {
+  .wnav .hdr-store {
+    gap: 4px;
+  }
+
+  .wnav .hdr-account {
+    display: flex;
+    margin-left: 19px;
+    padding-bottom: 3px; /* source: the trigger's baseline line box leaves 3px under it (trigger y 60, panel y 93) */
+  }
+
+  .wnav .hdr-account-trigger {
+    gap: 2px;
+  }
+
+  .wnav .hdr-cart {
+    margin-left: 15px;
+  }
+
+  .wnav .hdr-cart-link:any-link {
+    padding-right: 3px;
+  }
+
+  .wnav .hdr-cart-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .wnav .hdr-bottom {
+    min-height: 40px;
+  }
+
+  .wnav .hdr-bottom-row {
+    min-height: 0;
+  }
+
+  .wnav .hdr-nav {
+    display: block;
+    position: static;
+    width: 100%;
+    background: none;
+    box-shadow: none;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .wnav .hdr-nav-list {
+    display: flex;
+    align-items: flex-start;
+    margin: 0 -5px;
+    width: calc(100% + 10px);
+    padding: 2px 0; /* 2 + 36px link + 2 = the 40px row */
+  }
+
+  .wnav .hdr-nav-item-end {
     margin-left: auto;
   }
 
-  .wnav .wnav-item > .wnav-link {
+  .wnav .hdr-nav-link {
+    display: inline-flex;
+    justify-content: flex-start;
     width: auto;
-    padding: 12px 0;
+    padding: 10px;
+    font: 600 14px/16px var(--body-font-family);
+    white-space: nowrap;
   }
 
-  .wnav .wnav-nav .wnav-panel {
+  .wnav .hdr-nav-link,
+  .wnav a.hdr-nav-link:any-link {
+    border-radius: 2px;
+  }
+
+  .wnav .hdr-nav-chev {
+    transform: rotate(90deg); /* icon__arrow-right rotated to a down chevron */
+  }
+
+  .wnav .hdr-nav-link-dd.is-open .hdr-nav-chev {
+    transform: rotate(-90deg);
+  }
+
+  .wnav .hdr-nav .hdr-dd {
     position: absolute;
-    top: 100%;
-    box-shadow: var(--wnav-shadow);
-    padding: 24px;
+    background: var(--palette-brand-white);
+    box-shadow: var(--hdr-shadow-panel);
+    min-width: 280px;
+    padding: 8px 0;
   }
 
-  .wnav .wnav-nav .wnav-panel > ul {
-    columns: 3 220px;
-    column-gap: 32px;
+  .wnav .hdr-nav .hdr-dd-mega {
+    min-width: 640px;
   }
 
-  .wnav .wnav-nav .wnav-panel-mega > ul {
-    columns: 5 180px;
+  .wnav .hdr-dd-section {
+    display: none;
+  }
+
+  .wnav .hdr-dd-list-l2 {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .wnav .hdr-dd-list-l2 > .hdr-dd-item {
+    flex: 1 0 100%;
+  }
+
+  .wnav .hdr-dd-list-l2 > .hdr-dd-item-has-children {
+    flex: 1 0 220px;
+  }
+
+  .wnav .hdr-dd-mega .hdr-dd-list-l2 > .hdr-dd-item {
+    flex: 1 0 50%;
+  }
+}
+
+/* store and account render once per row; each breakpoint shows its own (EDS moves the nodes instead).
+   Last in the file so these win over the component rules above. */
+.wnav .wnav-desktop {
+  display: none;
+}
+
+/* breakpoint-exception: source parity (lsg 768px) */
+@media (min-width: 768px) {
+  .wnav {
+    --nav-height: 153px;
+  }
+
+  .wnav .wnav-mobile {
+    display: none;
+  }
+
+  .wnav .hdr-store.wnav-desktop {
+    display: inline-flex;
+  }
+
+  .wnav .hdr-account.wnav-desktop {
+    display: flex;
   }
 }

@@ -40,6 +40,7 @@ export function renderPage(model, assets) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Walgreens nav (SSR)</title>
+<style>body { margin: 0; font-family: inter, system-ui, sans-serif; }</style>
 </head>
 <body>
 <header>

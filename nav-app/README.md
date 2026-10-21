@@ -23,9 +23,11 @@ browser: web-src/src/client.js (static hosting) → hydrateRoot(#wnav-root, <Nav
 | Path | Purpose |
 |------|---------|
 | `src/parse-nav.js` | Reads the authored nav document into a JSON model. Same slot order as `blocks/header/header.js`, so authors keep editing `/nav` as today. |
-| `src/Nav.js` | The React component, shared by server and browser. Uses `htm` instead of JSX, so there's no transpile step. |
+| `src/Nav.js` | The React component, shared by server and browser. It renders the same DOM and classes as the EDS header block (`blocks/header/header.js`), the project's port of walgreens.com. Uses `htm` instead of JSX, so there's no transpile step. |
+| `src/icons.js` | The header's 32×32 glyphs, copied from `header.js`. |
 | `src/render.js` | Model → HTML fragment (or a standalone page). |
 | `actions/nav/index.js` | The web action. |
+| `web-src/src/nav.css` | `blocks/header/header.css` scoped to `.wnav`, plus the brand tokens it uses. Commerce panel rules are removed. |
 | `web-src/` | Hydration bundle (built by Parcel on deploy). The action reads its hashed asset URLs from the deployed `index.html`. |
 | `scripts/dev.js` | Local preview without a workspace. |
 
@@ -40,7 +42,15 @@ Action responses:
 Responses are `Cache-Control: public, max-age=300, stale-while-revalidate=600`.
 
 Out of scope for the prototype: the Commerce drop-ins the EDS header wires in (search popover,
-signed-in account state, mini-cart and cart badge). Search submits a plain `GET /search?q=`.
+signed-in account state, mini-cart and cart badge). Search submits a plain `GET /search?q=`, and the
+account panel always shows the signed-out "Sign in" button.
+
+Fonts come from the page. Injected into the EDS site, the nav uses its Inter and Source Sans Pro.
+On its own (`?format=page`) it falls back to system fonts, because aem.page doesn't send CORS headers
+for fonts.
+
+The hydration script is a cross-origin module script on the EDS page, so static hosting must answer
+with `Access-Control-Allow-Origin`. `npm run dev` does this.
 
 ## Local preview (no Adobe project needed)
 

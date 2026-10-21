@@ -31,12 +31,18 @@ http.createServer(async (req, res) => {
   if (pathname.startsWith('/assets/')) {
     const name = pathname.slice('/assets/'.length);
     if (!files[name]) { res.writeHead(404).end(); return; }
-    res.writeHead(200, { 'Content-Type': TYPES[name.split('.').pop()] }).end(files[name]);
+    // module scripts loaded cross-origin (from the EDS page) need CORS
+    res.writeHead(200, {
+      'Content-Type': TYPES[name.split('.').pop()], 'Access-Control-Allow-Origin': '*',
+    }).end(files[name]);
     return;
   }
   const format = { '/': 'page', '/fragment': 'fragment', '/json': 'json' }[pathname];
   if (!format) { res.writeHead(404).end(); return; }
   const out = await main({ format, ASSET_BASE, EDS_ORIGIN: process.env.EDS_ORIGIN });
   const body = typeof out.body === 'string' ? out.body : JSON.stringify(out.body, null, 2);
-  res.writeHead(out.statusCode, { 'Content-Type': 'application/json', ...out.headers }).end(body);
+  // web actions answer with CORS open; mirror it so the EDS dev server (:3000) can fetch the fragment
+  res.writeHead(out.statusCode, {
+    'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', ...out.headers,
+  }).end(body);
 }).listen(PORT, () => console.log(`nav-app dev server: http://localhost:${PORT}/`));
