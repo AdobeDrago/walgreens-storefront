@@ -10,6 +10,7 @@
  *   ASSET_BASE  optional base URL of the hydration bundle; defaults to the workspace's static hosting
  */
 import parseNav from '../../src/parse-nav.js';
+import parseAssets from '../../src/assets.js';
 import { renderFragment, renderPage } from '../../src/render.js';
 
 const DEFAULT_ORIGIN = 'https://main--walgreens-storefront--adobedrago.aem.page';
@@ -35,17 +36,10 @@ async function loadAssets(base) {
   try {
     const resp = await fetch(new URL('index.html', base));
     if (!resp.ok) throw new Error(`index.html ${resp.status}`);
-    const doc = await resp.text();
-    const abs = (url) => new URL(url, base).href;
-    const attr = (tag, name) => tag.match(new RegExp(`\\s${name}="([^"]*)"`))?.[1];
-    return {
-      css: [...doc.matchAll(/<link\b[^>]*>/g)].map(([tag]) => tag)
-        .filter((tag) => attr(tag, 'rel') === 'stylesheet').map((tag) => abs(attr(tag, 'href'))),
-      // aio's Parcel build emits a classic deferred script; a dev build may emit a module
-      js: [...doc.matchAll(/<script\b[^>]*>/g)].map(([tag]) => tag)
-        .filter((tag) => attr(tag, 'src'))
-        .map((tag) => ({ src: abs(attr(tag, 'src')), module: attr(tag, 'type') === 'module' })),
-    };
+    const assets = parseAssets(await resp.text(), base);
+    // don't keep an empty result: the web assets may still be uploading during a deploy
+    if (!assets.js.length) throw new Error('no script in index.html');
+    return assets;
   } catch (e) {
     console.warn(`hydration assets unavailable from ${base}: ${e.message}`);
     assetsPromise = null;
