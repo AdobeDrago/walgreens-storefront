@@ -4,8 +4,27 @@
     {
       "name": "aem-dev",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["-y", "@adobe/aem-cli", "up", "--no-open", "--forward-browser-logs", "--html-folder", "drafts"],
+      "runtimeArgs": [
+        "-y",
+        "@adobe/aem-cli",
+        "up",
+        "--no-open",
+        "--forward-browser-logs",
+        "--html-folder",
+        "drafts"
+      ],
       "port": 3000
+    },
+    {
+      "name": "nav-app-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "nav-app",
+        "run",
+        "dev"
+      ],
+      "port": 3100
     }
   ]
 }

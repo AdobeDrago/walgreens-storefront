@@ -1,0 +1,22 @@
+{
+  "name": "walgreens-nav-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Server-rendered React nav for the Walgreens storefront, deployed on Adobe App Builder",
+  "scripts": {
+    "dev": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/dev.js",
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test test/*.test.js"
+  },
+  "dependencies": {
+    "htm": "3.1.1",
+    "node-html-parser": "9.0.5",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.10"
+  }
+}

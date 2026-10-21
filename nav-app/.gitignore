@@ -1,0 +1,7 @@
+# App Builder workspace credentials — written by `aio app use`, never commit
+.env
+.aio
+
+node_modules/
+dist/
+.parcel-cache/
