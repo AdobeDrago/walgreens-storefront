@@ -16,3 +16,7 @@ scripts/__dropins__/**/*.map
 !CLAUDE.md
 !AGENTS.md
 migration-work/navigation-validation/
+
+# EDS renders of README.md files written by local tooling
+README.html
+README.plain.html
