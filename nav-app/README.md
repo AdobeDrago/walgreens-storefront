@@ -24,6 +24,11 @@ EDS  /nav.plain.html ──▶ actions/nav (Runtime web action)
 browser: web-src/src/client.js (static hosting) → hydrateRoot(#wnav-root, <Nav model/>)
 ```
 
+The content source is replaceable. `fetchModel` in `actions/nav/index.js` is the only code that
+knows where the nav comes from. Point it at another source (a headless CMS, Content Fragments, a
+commerce category tree) and map that into the same model (`?format=json` shows its shape). The
+render, hydration, caching and edge function stay as they are.
+
 | Path | Purpose |
 |------|---------|
 | `src/parse-nav.js` | Reads the authored nav document into a JSON model. Same slot order as `blocks/header/header.js`, so authors keep editing `/nav` as today. |

@@ -50,6 +50,7 @@ it still renders on fallback pages and on `aem.page`/`aem.live`.
 | `config/edgeFunctions.yaml` | Declares the function `edge-nav` and its settings |
 | `config/cdn.yaml` | Routes HTML page paths on the custom domain to `edgefunction-edge-nav` |
 | `fastly.toml` | Compute package and local-server settings |
+| `scripts/serve-local.js` | `npm run local`: build and serve in front of a local EDS dev server |
 | `test/` | `node --test` suite for `stitch.js` |
 
 ## Settings
@@ -64,20 +65,32 @@ These are set in `config/edgeFunctions.yaml` (`configs`), and for local runs in 
 
 ## Run it locally
 
-```bash
-npm install
-npm test
-npx js-compute-runtime ./src/index.js ./bin/main.wasm
-fastly compute serve --skip-build --file bin/main.wasm --addr 127.0.0.1:7676
-```
+You need Node.js 22+ and the [Fastly CLI](https://www.fastly.com/documentation/reference/tools/cli/)
+(`brew install fastly/tap/fastly`). No Adobe account is needed.
 
-Then open <http://127.0.0.1:7676/> and check `curl -sI http://127.0.0.1:7676/ | grep -i x-edge-nav`.
-This needs the [Fastly CLI](https://www.fastly.com/documentation/reference/tools/cli/)
-(`brew install fastly/tap/fastly`). Once `aio aem edge-functions setup` is done, `npm run serve`
-does the same thing through the aio plugin.
+1. Start the EDS dev server from the repository root and keep it running:
+   ```bash
+   npx -y @adobe/aem-cli up --no-open        # http://localhost:3000
+   ```
+2. In a second terminal, from this folder:
+   ```bash
+   npm install
+   npm run local                             # http://127.0.0.1:7676
+   ```
 
-To test the `scripts.js` guard against local code, set `EDS_ORIGIN` in `fastly.toml` to the AEM
-dev server (for example `http://localhost:3000`).
+`npm run local` compiles the function to `bin/main.wasm` and serves it in front of
+`localhost:3000`. Every page then comes back with the nav already in `<header>`;
+`curl -sI http://127.0.0.1:7676/ | grep -i x-edge-nav` prints `stitched`. It writes its settings
+to `.local/` (gitignored) and leaves `fastly.toml` alone. Optional overrides:
+
+| Variable | Default |
+|----------|---------|
+| `EDS_ORIGIN` | `http://localhost:3000` |
+| `NAV_FRAGMENT_URL` | The Stage nav app. Use `http://localhost:3100/fragment` with nav-app's `npm run dev`. |
+| `EDGE_PORT` | `7676` |
+
+`npm test` runs the unit tests. Once `aio aem edge-functions setup` is done, `npm run serve` serves
+through the aio plugin instead, using the settings in `fastly.toml`.
 
 ## Deploy
 
