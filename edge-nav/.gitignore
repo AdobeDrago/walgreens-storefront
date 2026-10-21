@@ -1,0 +1,16 @@
+# aio edge-functions context (written by `aio aem edge-functions setup`), never commit
+.aio
+.env
+
+# Compute build output
+/bin
+/pkg
+
+node_modules/
+
+# EDS renders of README.md written by local tooling
+README.html
+README.plain.html
+
+# npm run local (scripts/serve-local.js)
+/.local

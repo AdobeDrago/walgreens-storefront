@@ -1,0 +1,16 @@
+kind: 'CDN'
+version: '1'
+data:
+  originSelectors:
+    rules:
+      # HTML pages only (extensionless, .html, or ending in /); assets go straight to EDS.
+      # Replace the domain with the custom domain mapped to this program's Adobe-managed CDN.
+      - name: route-pages-to-edge-nav
+        when:
+          allOf:
+            - { reqProperty: domain, equals: "www.example.com" }
+            - { reqProperty: originalPath, matches: '(/[^./]+|\.html|/)$' }
+            - { reqProperty: originalPath, doesNotMatch: '\.plain\.html$' }
+        action:
+          type: selectAemOrigin
+          originName: edgefunction-edge-nav

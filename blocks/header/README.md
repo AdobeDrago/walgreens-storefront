@@ -2,56 +2,47 @@
 
 ## Overview
 
-The Header block renders the Walgreens site chrome (ported from the source EDS header) with the Adobe Commerce storefront wired in:
+The site nav is not built by this block. It comes from **nav-app**: the Walgreens nav as a
+server-rendered React app on Adobe App Builder (`nav-app/`), part of the edge-stitched nav demo
+(`tools/edge-nav-demo/index.html`).
 
-- **Promo bar** (40px, neutral) — authored promo links.
-- **Top row** (73px) — logo, pill search (product-discovery live results popover), store text with a pin, Account dropdown (authored links + storefront auth state), cart icon (mini-cart panel + item-count badge).
-- **Nav row** (40px) — click-to-open dropdown panels (1 column, or 2 columns when a panel has 20+ items), direct links, last item right-aligned.
-- **Mobile (<768px)** — hamburger menu panel (accordion dropdowns); store + account move to a second 43px row.
+- **Through the edge-nav edge function** (`edge-nav/`), the nav is already inside `<header>` in
+  the first HTML response. `scripts/scripts.js` sees `#wnav-root` and doesn't load this block.
+- **Everywhere else** (aem.page and aem.live without the edge function, or an edge-nav fallback),
+  this block fetches the same nav-app fragment in the browser and appends it to `<header>`. React
+  then makes it interactive.
 
-Total height: 153px at >=768px, 156px below (`--nav-height` in `styles/styles.css`).
+The block never renders an EDS-built nav. If the nav-app URL fails, the header stays empty and the
+error is logged. The EDS-built Walgreens header that used to live here, with Commerce search,
+account and mini-cart, is in git history at `ae32f6d`.
 
 ## Nav document
 
-The nav is fetched independently of page metadata: `/content/nav.plain.html` first (local import tree), falling back to `/nav.plain.html`. Relative image sources are resolved against the fetched document's directory. Sections, in order:
-
-1. promo — `<ul>` of links
-2. brand — `<p><a><img></a></p>`
-3. search — `<p><a href>label</a></p>`; the label becomes the input placeholder / accessible name
-4. store — `<p>text</p>` (optional, recognised by shape: no link, list or image)
-5. account — `<p>trigger label</p>` + `<ul>` of links
-6. nav — `<ul>`: `<li>label<ul>…</ul></li>` = dropdown, `<li><a/></li>` = direct link. Inside a panel a plain `<li>` is the panel title (mobile only) and `<li>group<ul>…</ul></li>` is a link group
-7. cart — `<p><a href>label</a></p>`; the href is the no-JS fallback, the label is visually hidden
-
-Items wrapped in `<p>` by live delivery are unwrapped.
+Authors still edit `/nav` as before. nav-app reads `/nav.plain.html` on the server
+(`nav-app/src/parse-nav.js`, same section order as before: promo, brand, search, store, account,
+nav, cart).
 
 ## Integration
 
-### Events
-
-- `events.on('cart/data')` (eager) — updates the cart badge (`data-count` on the cart link) and preloads the mini-cart fragment when a cart exists.
-- `events.on('authenticated')` (eager) — switches the Account panel between signed-out (a primary "Sign in" pill built from the authored `/customer/login` link, which it replaces in the list) and signed-in (greeting + Sign out; the pill and the `/customer/create` item hidden).
-- Opening the mini-cart publishes `publishShoppingCartViewEvent()`.
+- **Fragment URL:** `NAV_APP_URL` in `header.js` (the App Builder Stage action
+  `…/api/v1/web/nav-app/nav`).
+- **The fragment** brings its own stylesheet, markup (`#wnav-root`), model (`#wnav-data`) and
+  hydration script from App Builder static hosting. Its `<script>` is re-created after insertion so
+  it runs; scripts created by a nonce'd script are allowed by the page's `'strict-dynamic'` CSP.
+- **Not wired:** the Commerce drop-ins (product-discovery search popover, signed-in account state,
+  mini-cart, cart count). Search submits `GET /search?q=`.
 
 ### Metadata
 
-- `mini-cart` — path to the mini-cart fragment (default `/mini-cart`). The nav path is not metadata-driven.
-
-### Placeholders (optional)
-
-- `Global.SearchViewAll` — "View all" button in the search popover.
-- `Global.HeaderGreeting` (default `Hi,`) and `Global.HeaderSignOut` (default `Sign out`) — signed-in account panel.
+None.
 
 ## Behavior
 
-- Dropdowns (nav items, Account, cart) open on click only; opening one closes the others. Escape closes and returns focus to the trigger; outside click or tabbing out of the header closes. No page overlay.
-- Triggers are `<button aria-expanded aria-controls>` (the cart keeps its `<a href="/cart">`).
-- Search: the product-discovery drop-in loads on first focus; typing 3+ characters shows up to 4 results in a popover directly under the pill (same width); submit navigates to `/search?q=…`. The focus ring is drawn on the pill form.
-- Account: Sign out lazily imports `renderAuthDropdown.js`, revokes the token, then redirects (checkout → cart, customer pages → login, order details → home) or reloads.
-- Mini-cart: lazily loaded into a 398px panel right-aligned under the cart icon (same top offset as the Account panel), drop-in buttons restyled as Walgreens pills; hidden on `/checkout`.
+Dropdowns, mobile menu, Escape and outside-click handling are provided by nav-app's React
+component (`nav-app/src/Nav.js`), not by this block.
 
 ## Files
 
-- `header.js` — nav fetch, DOM building, dropdown state, search / mini-cart / auth wiring
-- `header.css` — Walgreens chrome styles (mobile first, desktop at 768px for source parity) and storefront panel styles
-- `renderAuthDropdown.js` — storefront sign-out (lazy-loaded)
+- `header.js` — removes the block element and, unless the nav is already present, fetches and
+  appends the nav-app fragment
+- `header.css` — keeps the block element out of the layout until it is removed

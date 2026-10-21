@@ -1,0 +1,12 @@
+kind: "EdgeFunctions"
+version: "1"
+data:
+  functions:
+    - name: edge-nav
+  configs:
+    - key: EDS_ORIGIN
+      value: https://main--walgreens-storefront--adobedrago.aem.live
+    - key: NAV_FRAGMENT_URL
+      value: https://4191536-703coralcanid-stage.adobeio-static.net/api/v1/web/nav-app/nav
+    - key: FRAGMENT_TIMEOUT_MS
+      value: "1500"

@@ -1,0 +1,23 @@
+# Fastly Compute package for the edge-nav AEM Edge Function.
+# https://www.fastly.com/documentation/reference/compute/fastly-toml
+
+authors = []
+description = "Stitches the server-rendered nav (nav-app) into EDS pages"
+language = "javascript"
+manifest_version = 3
+name = "edge-nav"
+service_id = ""
+
+[scripts]
+  build = "npx js-compute-runtime ./src/index.js ./bin/main.wasm"
+  post_init = "npm install"
+
+# `aio aem edge-functions serve` (http://127.0.0.1:7676)
+[local_server]
+  [local_server.config_stores]
+    [local_server.config_stores.config_default]
+      format = "inline-toml"
+    [local_server.config_stores.config_default.contents]
+      EDS_ORIGIN = "https://main--walgreens-storefront--adobedrago.aem.live"
+      NAV_FRAGMENT_URL = "https://4191536-703coralcanid-stage.adobeio-static.net/api/v1/web/nav-app/nav"
+      FRAGMENT_TIMEOUT_MS = "1500"

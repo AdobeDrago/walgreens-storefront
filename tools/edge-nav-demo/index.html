@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Server-rendered nav at the edge</title>
+<meta name="description" content="A prototype that delivers the Walgreens site nav as a server-rendered React app on Adobe App Builder, placed into Edge Delivery Services pages by an AEM Edge Function: how it works, how to run it locally, and how to deploy it.">
+<style>
+  :root {
+    --bg: #fbfaf8;
+    --surface: #fff;
+    --surface-2: #f4f2ef;
+    --text: #2b2827;
+    --muted: #6a6463;
+    --line: #e4dfda;
+    --accent: #a32a33;
+    --accent-soft: #f6e6e7;
+    --ok: #1f7a46;
+    --ok-soft: #e3f3e9;
+    --warn: #9a5a1e;
+    --warn-soft: #fbeedf;
+    --code-bg: #f1eeea;
+    --shadow: 0 1px 2px rgb(0 0 0 / 5%), 0 4px 16px rgb(0 0 0 / 4%);
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --sans: inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #161413;
+      --surface: #1f1c1b;
+      --surface-2: #282423;
+      --text: #ece7e4;
+      --muted: #a69e9a;
+      --line: #3a3432;
+      --accent: #e36a72;
+      --accent-soft: #3a2224;
+      --ok: #6fcf97;
+      --ok-soft: #1d3326;
+      --warn: #e8a868;
+      --warn-soft: #3a2b1c;
+      --code-bg: #2a2625;
+      --shadow: none;
+
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #161413;
+    --surface: #1f1c1b;
+    --surface-2: #282423;
+    --text: #ece7e4;
+    --muted: #a69e9a;
+    --line: #3a3432;
+    --accent: #e36a72;
+    --accent-soft: #3a2224;
+    --ok: #6fcf97;
+    --ok-soft: #1d3326;
+    --warn: #e8a868;
+    --warn-soft: #3a2b1c;
+    --code-bg: #2a2625;
+    --shadow: none;
+
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.6 var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-underline-offset: 2px; }
+  a:hover { text-decoration-thickness: 2px; }
+
+  code {
+    font: 0.88em/1.4 var(--mono);
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    overflow-wrap: anywhere;
+  }
+
+  .page {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 0 16px 80px;
+  }
+
+  header.hero {
+    padding: 48px 0 28px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 8px;
+  }
+
+  .eyebrow {
+    font: 600 12px/1 var(--sans);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 12px;
+  }
+
+  h1 {
+    font-size: clamp(30px, 5vw, 42px);
+    line-height: 1.15;
+    margin: 0 0 14px;
+    letter-spacing: -0.02em;
+  }
+
+  .lede {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 68ch;
+    margin: 0;
+  }
+
+  nav.toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin: 22px 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+  }
+
+  nav.toc a { color: var(--muted); text-decoration: none; }
+  nav.toc a:hover { color: var(--accent); }
+
+  section { padding-top: 40px; }
+
+  h2 {
+    font-size: 24px;
+    letter-spacing: -0.01em;
+    margin: 0 0 14px;
+    scroll-margin-top: 16px;
+  }
+
+  h3 { font-size: 17px; margin: 26px 0 10px; }
+
+  p, li { max-width: 72ch; }
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    margin: 14px 0;
+  }
+
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+
+  th, td {
+    text-align: left;
+    vertical-align: top;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  tr:last-child td { border-bottom: 0; }
+
+  th {
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--surface-2);
+    font-weight: 600;
+  }
+
+  td:first-child { font-weight: 600; min-width: 150px; }
+  td.plain { font-weight: 400; }
+
+  /* phones: each row becomes a block, the first cell its heading */
+  @media (max-width: 640px) {
+    table, tbody, tr, td { display: block; width: 100%; }
+    thead { display: none; }
+    tr { padding: 12px 14px; border-bottom: 1px solid var(--line); }
+    tr:last-child { border-bottom: 0; }
+    td, tr:last-child td { padding: 2px 0; border: 0; min-width: 0; }
+    td:first-child { font-weight: 600; margin-bottom: 4px; }
+  }
+
+  .pill {
+    display: inline-block;
+    font: 600 12px/1 var(--sans);
+    padding: 5px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .pill.done { background: var(--ok-soft); color: var(--ok); }
+  .pill.todo { background: var(--warn-soft); color: var(--warn); }
+
+  /* architecture diagram */
+  .diagram {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: 1fr;
+    margin: 18px 0;
+  }
+
+  .lane {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    padding: 16px;
+  }
+
+  .lane.planned { border-style: dashed; background: transparent; box-shadow: none; }
+
+  .lane h3 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .lane ol { margin: 0; padding-left: 20px; font-size: 15px; }
+  .lane li { margin: 3px 0; }
+  .lane p { margin: 0; font-size: 15px; }
+
+  .arrow {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.3;
+  }
+
+  .arrow::before { content: "↓"; display: block; font-size: 20px; color: var(--accent); }
+
+  .fragment {
+    font: 13px/1.6 var(--mono);
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin: 10px 0 0;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* minmax(0, …) lets the lanes shrink below the fragment sample's longest line, which then scrolls */
+  .diagram { max-width: 760px; grid-template-columns: minmax(0, 1fr); }
+  .grid-2 > * { min-width: 0; }
+
+  ol.steps, ol.gotchas { padding-left: 22px; }
+  ol.steps li, ol.gotchas li { margin: 8px 0; }
+
+  .callout {
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin: 16px 0;
+    max-width: 72ch;
+  }
+
+  .grid-2 {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 900px) {
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+  }
+
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+  }
+
+  .card h3 { margin-top: 0; }
+  .card ul { padding-left: 20px; margin: 0; }
+  .card li { margin: 6px 0; }
+
+  pre.cmd {
+    font: 13px/1.6 var(--mono);
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin: 10px 0 14px;
+    overflow-x: auto;
+    max-width: 760px;
+  }
+
+  .card ol { padding-left: 20px; margin: 0; }
+  .card ol li { margin: 6px 0; }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="hero">
+  <p class="eyebrow">Walgreens storefront · Prototype</p>
+  <h1>Server-rendered nav at the edge</h1>
+  <p class="lede">
+    A prototype that delivers the Walgreens site navigation as a <strong>server-rendered React
+    app</strong>, running on Adobe App Builder and placed into the Edge Delivery Services (EDS) page
+    by an <strong>AEM Edge Function</strong>. With the edge function, the nav is already in the
+    first HTML response, so the browser shows it without a separate request. The prototype reads
+    the nav content from the authored EDS <code>/nav</code> document, but the same model works with
+    any content source (see <a href="#content-source">Content source</a>).
+  </p>
+  <p class="lede" style="font-size:16px;margin-top:12px">
+    Terms used below: the nav app returns an <strong>HTML fragment</strong>, a piece of HTML for the
+    page's <code>&lt;header&gt;</code> rather than a full page. In the browser, React then
+    <strong>hydrates</strong> it, attaching its event handlers to that existing HTML so the menus
+    work. <strong>Stage</strong> is the App Builder test workspace; Production isn't deployed yet.
+  </p>
+  <nav class="toc" aria-label="Contents">
+    <a href="#status">Status</a>
+    <a href="#delivery">How it's delivered</a>
+    <a href="#content-source">Content source</a>
+    <a href="#run-locally">Run it locally</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#decisions">Design decisions</a>
+    <a href="#verification">Verification</a>
+    <a href="#considerations">Considerations</a>
+    <a href="#deploy">Deploying</a>
+    <a href="#notes">Implementation notes</a>
+    <a href="#repository">Repository</a>
+    <a href="#references">References</a>
+  </nav>
+</header>
+
+<section id="status">
+  <h2>Status</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Component</th><th>What it does</th><th>Where it runs</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Nav app</td>
+          <td class="plain">Renders the nav with React on the server and returns HTML; the browser bundle then makes it interactive</td>
+          <td class="plain">Adobe App Builder (I/O Runtime action + static hosting)</td>
+          <td class="plain"><span class="pill done">Live</span> Deployed to Stage (test) automatically on each change</td>
+        </tr>
+        <tr>
+          <td>Edge function</td>
+          <td class="plain">Puts the nav HTML into the page's <code>&lt;header&gt;</code> before the page leaves the CDN</td>
+          <td class="plain">AEM Edge Function on the Adobe-managed CDN</td>
+          <td class="plain"><span class="pill todo">Not deployed</span> Built and tested locally; deploying needs a Cloud Manager program (see <a href="#deploy">Deploying</a>)</td>
+        </tr>
+        <tr>
+          <td>EDS header block</td>
+          <td class="plain">Loads the nav app in the browser on pages that didn't come through the edge function</td>
+          <td class="plain">Edge Delivery Services</td>
+          <td class="plain"><span class="pill done">Done</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <h3>What's needed for production</h3>
+  <ul>
+    <li><strong>Licensing and environments:</strong> Adobe App Builder; a Cloud Manager program with the Edge Delivery Services add-on and AEM Edge Functions; a custom domain on the Adobe-managed CDN.</li>
+    <li><strong>A Production deployment</strong> of the nav app (only Stage is deployed today) and of the edge function.</li>
+    <li><strong>Resilience:</strong> a fallback for when App Builder is unavailable, since the nav app is currently required.</li>
+    <li><strong>Commerce features in the nav</strong> (live search, signed-in account state, mini-cart), which the prototype doesn't include.</li>
+    <li><strong>The real content source</strong>, mapped into the nav model (see <a href="#content-source">Content source</a>).</li>
+    <li><strong>Variants by audience</strong> (locale, store, signed-in state), if needed. The prototype serves one nav to everyone.</li>
+  </ul>
+</section>
+
+<section id="delivery">
+  <h2>How the nav is delivered</h2>
+  <p>
+    The same React nav is used on every page. What differs is <em>when</em> it reaches the browser.
+  </p>
+  <div class="grid-2">
+    <div class="card">
+      <h3>With the edge function</h3>
+      <ol>
+        <li>A visitor requests a page on the site's domain.</li>
+        <li>The edge function fetches the page from EDS and the nav HTML from App Builder (cached for 5 minutes).</li>
+        <li>It puts the nav into <code>&lt;header&gt;</code> and returns one HTML response.</li>
+        <li>The browser shows the nav immediately; the React bundle then makes the menus interactive.</li>
+      </ol>
+      <p style="margin-top:10px">In the page source, <code>&lt;header&gt;</code> already contains <code>id="wnav-root"</code>. The response header <code>X-Edge-Nav: stitched</code> means the edge function inserted the nav; <code>X-Edge-Nav: fallback-…</code> means it returned the page unchanged.</p>
+    </div>
+    <div class="card">
+      <h3>Without the edge function</h3>
+      <ol>
+        <li>The page arrives from EDS with an empty <code>&lt;header&gt;</code>.</li>
+        <li>The EDS <code>header</code> block fetches the same nav HTML from App Builder in the browser.</li>
+        <li>It loads the nav's stylesheet, inserts the markup, and the React bundle makes it interactive.</li>
+      </ol>
+      <p style="margin-top:10px">This is what <code>aem.page</code> and <code>aem.live</code> URLs show, and what the edge function falls back to if the nav is slow or its request fails. In DevTools → Network you'll see a separate <code>nav-app/nav</code> request after the page loads.</p>
+    </div>
+  </div>
+</section>
+
+<section id="content-source">
+  <h2>Using a different content source</h2>
+  <p>
+    The prototype reads its nav content from the EDS <code>/nav</code> document because that's
+    where this site's nav is authored today. Nothing else in the solution depends on EDS as the
+    source. Only one step does: the nav app's web action turns the source into a plain JSON
+    <strong>nav model</strong>, and everything after that works from the model alone.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Layer</th><th>Depends on the content source?</th></tr></thead>
+      <tbody>
+        <tr><td>Load and map the content</td><td class="plain"><strong>Yes, the only part that changes.</strong> Today: fetch <code>/nav.plain.html</code> and parse it (<code>nav-app/src/parse-nav.js</code>, called from <code>fetchModel</code> in <code>nav-app/actions/nav/index.js</code>).</td></tr>
+        <tr><td>Server render (React)</td><td class="plain">No. It renders whatever model it's given.</td></tr>
+        <tr><td>Browser hydration</td><td class="plain">No. The model is embedded in the page as JSON.</td></tr>
+        <tr><td>Caching and the HTML fragment</td><td class="plain">No</td></tr>
+        <tr><td>Edge function and EDS <code>header</code> block</td><td class="plain">No. They only see the HTML fragment.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    The source could be a headless CMS, AEM Content Fragments through GraphQL, a commerce category
+    tree, a navigation service, or a JSON file. Map it into this shape and the rest of the solution
+    is unchanged:
+  </p>
+  <pre class="cmd">{
+  "promo":   [{ "label": "Earn $10 in rewards* …", "href": "/offers/offers" }],
+  "brand":   { "href": "/", "alt": "Walgreens: Trusted since 1901", "src": "https://…/logo.svg", "sources": [] },
+  "search":  { "label": "Search", "action": "/search" },
+  "store":   "151 N State St, Chicago, IL",
+  "account": { "label": "Account", "links": [{ "label": "Sign in", "href": "/customer/login" }] },
+  "nav": [
+    { "label": "Pharmacy", "children": [
+        { "label": "Prescriptions", "children": [
+            { "label": "Refills", "href": "https://www.walgreens.com/pharmacy/…" } ] } ] },
+    { "label": "Weekly Ad", "href": "/offers/offers-jsp/weeklyad" }
+  ],
+  "cart":    { "label": "View shopping cart", "href": "/cart" }
+}</pre>
+  <p>
+    <code>nav</code> is a tree. An item with <code>children</code> opens a menu; inside a menu, an
+    item with its own <code>children</code> is a group, an item with <code>href</code> is a link, and
+    an item with neither is a heading. <a href="https://4191536-703coralcanid-stage.adobeio-static.net/api/v1/web/nav-app/nav?format=json"><code>?format=json</code></a> on the Stage nav app returns the
+    full current model.
+  </p>
+  <h3>What to plan for with another source</h3>
+  <ul>
+    <li><strong>Mapping:</strong> replace <code>fetchModel</code> with a call to the new source and a mapping into the model. The model is the contract, so the mapping is the only new code.</li>
+    <li><strong>Credentials:</strong> if the source needs an API key or token, pass it to the action as an App Builder input from a secret (declared in <code>app.config.yaml</code>). It stays on the server and never reaches the browser.</li>
+    <li><strong>Freshness:</strong> the nav HTML is cached for 5 minutes. If the source can notify on publish, the cache lifetime can be raised and purged on change instead.</li>
+    <li><strong>Sources that differ by audience</strong> (for example locale, store or signed-in state) need that dimension in the fragment URL, and in the edge function's cache key, so visitors don't share the wrong nav.</li>
+  </ul>
+</section>
+
+<section id="run-locally">
+  <h2>Run it locally</h2>
+  <p>You can run the site on its own (the nav is loaded in the browser), or with the edge function in front of it (the nav arrives inside the page). Both use the nav app already deployed on App Builder Stage, so no Adobe account is needed.</p>
+
+  <h3>Prerequisites</h3>
+  <ul>
+    <li><a href="https://nodejs.org/">Node.js</a> 22 or later, and Git</li>
+    <li>For the edge function only: the <a href="https://www.fastly.com/documentation/reference/tools/cli/">Fastly CLI</a>, which runs Fastly Compute locally. On macOS: <code>brew install fastly/tap/fastly</code></li>
+  </ul>
+  <pre class="cmd">git clone https://github.com/AdobeDrago/walgreens-storefront.git
+cd walgreens-storefront</pre>
+
+  <h3>Option 1 · EDS only</h3>
+  <p>Start the EDS development server from the repository root:</p>
+  <pre class="cmd">npx -y @adobe/aem-cli up --no-open</pre>
+  <p>
+    Open <a href="http://localhost:3000/">http://localhost:3000/</a>. Code comes from your working
+    copy; page content comes from the EDS preview site,
+    <code>https://main--walgreens-storefront--adobedrago.aem.page</code>. The <code>header</code>
+    block fetches the nav from the App Builder Stage nav app in the browser.
+  </p>
+
+  <h3>Option 2 · EDS + edge function</h3>
+  <p>Keep Option 1 running. In a second terminal:</p>
+  <pre class="cmd">cd edge-nav
+npm install
+npm run local</pre>
+  <p>
+    Open <a href="http://127.0.0.1:7676/">http://127.0.0.1:7676/</a>. <code>npm run local</code>
+    compiles the edge function to WebAssembly and runs it with the Fastly CLI in front of
+    <code>localhost:3000</code>, so every page comes back with the nav already in
+    <code>&lt;header&gt;</code>.
+  </p>
+
+  <h3>Telling them apart</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Check</th><th>EDS only (:3000)</th><th>EDS + edge function (:7676)</th></tr></thead>
+      <tbody>
+        <tr><td>View Page Source → <code>&lt;header&gt;</code></td><td class="plain">Empty</td><td class="plain">Contains the nav (<code>id="wnav-root"</code>)</td></tr>
+        <tr><td>DevTools → Network</td><td class="plain">A <code>nav-app/nav</code> request after the page loads</td><td class="plain">No <code>nav-app/nav</code> request</td></tr>
+        <tr><td>Response headers</td><td class="plain">—</td><td class="plain"><code>X-Edge-Nav: stitched</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    On both, the nav is the React app: the <code>Nav</code> component appears in the
+    <a href="https://react.dev/learn/react-developer-tools">React Developer Tools</a> extension.
+  </p>
+
+  <h3>Optional · run the nav app locally too</h3>
+  <p>To change the nav itself, run the nav app too. In a third terminal, from the repository root:</p>
+  <pre class="cmd">cd nav-app
+npm install
+npm run dev                      # http://localhost:3100/  (the nav on its own)</pre>
+  <p>Then, in the <code>edge-nav</code> terminal, stop <code>npm run local</code> (Ctrl+C) and restart it pointed at the local nav app:</p>
+  <pre class="cmd">NAV_FRAGMENT_URL=http://localhost:3100/fragment npm run local</pre>
+  <p>
+    <code>npm run local</code> also accepts <code>EDS_ORIGIN</code> (default
+    <code>http://localhost:3000</code>) and <code>EDGE_PORT</code> (default <code>7676</code>).
+    Option 1's <code>header</code> block always uses the Stage nav app.
+  </p>
+</section>
+
+<section id="architecture">
+  <h2>Architecture</h2>
+  <div class="diagram" role="img" aria-label="Authors edit /nav in EDS. The App Builder action fetches and parses it, renders React to HTML and returns a fragment. The edge function puts the fragment into the page's header; without it, the EDS header block fetches the fragment in the browser.">
+    <div class="lane">
+      <h3>Content source · today EDS</h3>
+      <p>Authors edit <code>/nav</code>, served as <code>/nav.plain.html</code>. Any other source that can be mapped into the nav model works the same way. EDS delivers the pages themselves with an empty <code>&lt;header&gt;</code>.</p>
+    </div>
+    <div class="arrow">fetch /nav.plain.html</div>
+    <div class="lane">
+      <h3>Nav app · App Builder</h3>
+      <ol>
+        <li>The web action reads the nav content (today <code>/nav.plain.html</code>) and maps it into a JSON model</li>
+        <li>React renders the nav to HTML (<code>renderToString</code>)</li>
+        <li>It returns an HTML fragment that includes the stylesheet and browser bundle from App Builder static hosting</li>
+      </ol>
+      <div class="fragment">&lt;link rel="stylesheet" href="…/web-src.&lt;hash&gt;.css"&gt;
+&lt;div id="wnav-root"&gt; …server-rendered nav… &lt;/div&gt;
+&lt;script type="application/json" id="wnav-data"&gt; …model… &lt;/script&gt;
+&lt;script src="…/web-src.&lt;hash&gt;.js" defer&gt;&lt;/script&gt;</div>
+    </div>
+    <div class="arrow">fragment (cached 5 minutes)</div>
+    <div class="lane">
+      <h3>Edge function · Adobe-managed CDN</h3>
+      <p>Fetches the page and the fragment, adds the page's CSP nonce to the fragment's scripts, puts the fragment into <code>&lt;header&gt;</code>, and returns one response. Without it, the EDS <code>header</code> block fetches the fragment in the browser.</p>
+    </div>
+  </div>
+
+  <h3>Endpoints (Stage)</h3>
+  <p>Base URL: <code>https://4191536-703coralcanid-stage.adobeio-static.net/api/v1/web/nav-app/nav</code></p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>URL</th><th>Returns</th></tr></thead>
+      <tbody>
+        <tr><td class="plain"><a href="https://4191536-703coralcanid-stage.adobeio-static.net/api/v1/web/nav-app/nav"><code>(base URL)</code></a></td><td class="plain">The HTML fragment</td></tr>
+        <tr><td class="plain"><a href="https://4191536-703coralcanid-stage.adobeio-static.net/api/v1/web/nav-app/nav?format=page"><code>(base URL)?format=page</code></a></td><td class="plain">The nav on a page of its own</td></tr>
+        <tr><td class="plain"><a href="https://4191536-703coralcanid-stage.adobeio-static.net/api/v1/web/nav-app/nav?format=json"><code>(base URL)?format=json</code></a></td><td class="plain">The parsed nav model</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Responses are cached for 5 minutes (<code>Cache-Control: public, max-age=300, stale-while-revalidate=600</code>) and allow cross-origin requests.</p>
+</section>
+
+<section id="decisions">
+  <h2>Design decisions</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Decision</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td>AEM Edge Functions to insert the nav into the page</td><td class="plain">Keeps the solution on Adobe's stack. Edge functions run on Fastly Compute inside the Adobe-managed CDN in front of EDS, and are routed per path with <code>cdn.yaml</code>.</td></tr>
+        <tr><td>App Builder for the nav app</td><td class="plain">One Adobe project hosts both the server render (an I/O Runtime web action) and the browser bundle (static hosting on Adobe's CDN).</td></tr>
+        <tr><td>React server rendering rather than Next.js</td><td class="plain">I/O Runtime actions are short-lived functions, while Next.js expects its own long-running server and has no supported adapter. React's <code>renderToString</code> plus <code>hydrateRoot</code> demonstrates the same render-on-server, hydrate-in-browser pattern without that overhead.</td></tr>
+        <tr><td>The prototype reads the authored <code>/nav</code> document</td><td class="plain">Authoring doesn't change for this site, and the parser follows the same section order the EDS header always used. The source can be replaced without touching the rest (see <a href="#content-source">Content source</a>).</td></tr>
+        <tr><td>Same markup and styles as the existing EDS header</td><td class="plain">The React component renders the same structure and classes as the site's previous header, so the nav matches it in the layouts and interactions tested (see <a href="#verification">Verification</a>).</td></tr>
+        <tr><td>No build step for the component</td><td class="plain">The component uses <code>htm</code> templates instead of JSX, so one file runs on the server, in tests and in the browser bundle.</td></tr>
+        <tr><td>The browser bundle is a classic deferred script</td><td class="plain">It loads from App Builder's domain, which doesn't send CORS headers; classic scripts don't need them, while module scripts do.</td></tr>
+        <tr><td>A slow nav doesn't hold up the page</td><td class="plain">If the nav takes more than 1.5 seconds, or its request fails, the edge function returns the page unchanged and the <code>header</code> block retries in the browser. If App Builder itself is down, neither path can show a nav (see <a href="#considerations">Considerations</a>).</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="verification">
+  <h2>Verification</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Check</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>Visual parity with the previous EDS header</td><td class="plain">On the same page, element positions, sizes, font sizes and weights matched the previous header at 1440px and 375px, including with the Pharmacy, Shop and Account menus open and with the mobile menu open.</td></tr>
+        <tr><td>Interaction</td><td class="plain">After hydration, one menu opens at a time, Escape closes a menu and returns focus to its button, clicking outside closes it, and the mobile menu locks page scrolling while open. Resetting menus when the viewport crosses 768px is implemented but wasn't exercised in testing.</td></tr>
+        <tr><td>Edge function (local Fastly Compute runtime)</td><td class="plain">Pages come back with the nav in <code>&lt;header&gt;</code> and the response's CSP nonce on its scripts; assets and 404s pass through unchanged; a failing or slow nav falls back to the unmodified page. In the browser, under the page's real Content Security Policy, the nav hydrated with no CSP errors and the header block didn't render a second nav.</td></tr>
+        <tr><td>Without the edge function</td><td class="plain">On the EDS branch preview, the <code>header</code> block fetched the nav in the browser (about 0.3 s), React hydrated and the menus worked, with no CSP errors.</td></tr>
+        <tr><td>Layout stability</td><td class="plain">Cumulative Layout Shift was measured at 0 on mobile and desktop for both delivery paths. The stylesheet loads before the nav markup is inserted, so the nav never appears unstyled.</td></tr>
+        <tr><td>PageSpeed Insights</td><td class="plain">Without the edge function (EDS preview, nav loaded in the browser): Performance 96 on mobile and 99 on desktop, CLS 0.002. The edge-function path couldn't be scored yet, because it needs the deployed function on a custom domain.</td></tr>
+        <tr><td>Bundle size</td><td class="plain">About 234 KB of minified JavaScript (React and the nav) and 10 KB of CSS</td></tr>
+        <tr><td>Automated tests</td><td class="plain">Unit tests for the nav parser, rendered markup, asset handling and the edge function's insertion logic run with <code>npm test</code> in <code>nav-app/</code> and <code>edge-nav/</code>.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="considerations">
+  <h2>Considerations</h2>
+  <div class="callout">
+    Adobe notes that server-side or edge HTML assembly is <strong>not required</strong> for Edge
+    Delivery Services, which already delivers fast pages with client-side blocks. This prototype
+    demonstrates the pattern for teams that want a component like the nav rendered as a separate
+    app; weigh the extra moving parts against that.
+  </div>
+  <ul>
+    <li><strong>Commerce features in the nav are not wired yet.</strong> Live search results, signed-in account state and the mini-cart with item count aren't part of the React nav. Search submits to <code>/search?q=</code>, the account menu always shows "Sign in", and the cart is a link.</li>
+    <li><strong>The nav app is required.</strong> The EDS <code>header</code> block no longer builds a nav of its own. If App Builder is unavailable, both delivery paths show an empty header; production use would need a fallback (for example a cached copy of the last good nav).</li>
+    <li><strong>Nav changes usually appear within 5 minutes, and within 15 minutes at worst.</strong> The nav HTML is cached for 5 minutes and may be served stale for up to 10 more while it refreshes (<code>max-age=300, stale-while-revalidate=600</code>). Pages assembled by the edge function are cached no longer than the nav. Page content changes in EDS are purged as usual.</li>
+    <li><strong>Only the Stage workspace is deployed.</strong> A Production workspace exists in the App Builder project but has no deployment pipeline yet.</li>
+    <li><strong>The nav on its own page</strong> (<code>?format=page</code>) uses system fonts; inside the site it uses the site's fonts.</li>
+  </ul>
+</section>
+
+<section id="deploy">
+  <h2>Deploying</h2>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Nav app (App Builder)</h3>
+      <ul>
+        <li>Deployed automatically to the Stage workspace by a GitHub Actions workflow on every change to <code>nav-app/</code> on <code>main</code>. It runs the tests, deploys an optimized build, and checks the live action returns the nav.</li>
+        <li>One-time setup: an App Builder project in Adobe Developer Console, an OAuth Server-to-Server credential on the workspace, and the workspace values stored as GitHub secrets (<code>npm run ci:secrets</code>). See <code>nav-app/README.md</code>.</li>
+        <li>Manual deploy: <code>npm run deploy</code> in <code>nav-app/</code>.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Edge function (AEM Edge Functions)</h3>
+      <ul>
+        <li><strong>Needed first:</strong> a Cloud Manager program (sandbox or production) with the Edge Delivery Services add-on; this site onboarded in its Edge Delivery tab; a custom domain with an SSL certificate and DNS pointed at the Adobe-managed CDN (required even for testing); and the Deployment Manager role.</li>
+        <li><strong>Then:</strong> set the domain in <code>edge-nav/config/cdn.yaml</code>, run <code>aio aem edge-functions setup</code>, deploy <code>edge-nav/config</code> with a Cloud Manager Edge Delivery pipeline, and deploy the function with <code>aio aem edge-functions build</code> and <code>npm run deploy</code>.</li>
+        <li>Full steps: <code>edge-nav/README.md</code>.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="notes">
+  <h2>Implementation notes</h2>
+  <p>Details that shaped the code and are worth knowing when extending it:</p>
+  <ol class="gotchas">
+    <li><strong>Content Security Policy.</strong> EDS pages allow only scripts carrying a per-response nonce (<code>'strict-dynamic'</code>). The edge function copies each page's nonce onto the nav's script tags; without it, the browser would block the nav's JavaScript.</li>
+    <li><strong>Cache lifetimes.</strong> EDS asks the CDN to keep pages for up to 2 days, and nav changes don't purge pages. The edge function therefore caps assembled pages at the nav's 5-minute lifetime, and fallback pages at 60 seconds so assembly is retried soon.</li>
+    <li><strong>Layout stability.</strong> When the nav is loaded in the browser, its stylesheet must apply before the markup is inserted; otherwise the unstyled nav briefly lays out tall and shifts the page.</li>
+    <li><strong>App Builder build output.</strong> The deployed <code>index.html</code> is minified (attribute quotes removed) and asset names are content-hashed, so the action reads them from the deployed file rather than hard-coding them.</li>
+    <li><strong>Production builds.</strong> Deploys use <code>NODE_ENV=production</code> with <code>--web-optimize</code>; a plain <code>aio app deploy</code> ships React's unminified development build (about 1.2 MB).</li>
+    <li><strong>Bundler setup.</strong> The browser bundle needs the <code>process</code> package installed, and <code>package.json</code> must not declare an <code>engines.node</code> field, which would make the bundler target Node instead of the browser.</li>
+  </ol>
+</section>
+
+<section id="repository">
+  <h2>Repository</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Path</th><th>Contents</th></tr></thead>
+      <tbody>
+        <tr><td><code>nav-app/</code></td><td class="plain">The App Builder app: web action (<code>actions/nav</code>), React component and parser (<code>src/</code>), browser bundle and styles (<code>web-src/</code>), local dev server, tests</td></tr>
+        <tr><td><code>edge-nav/</code></td><td class="plain">The AEM Edge Function: entry point and nav-insertion logic (<code>src/</code>), Cloud Manager config (<code>config/edgeFunctions.yaml</code>, <code>config/cdn.yaml</code>), <code>npm run local</code>, tests</td></tr>
+        <tr><td><code>blocks/header/</code></td><td class="plain">The EDS <code>header</code> block, which loads the nav app in the browser when the edge function isn't in front of the page</td></tr>
+        <tr><td><code>scripts/scripts.js</code></td><td class="plain">Skips the <code>header</code> block when the nav is already in the page</td></tr>
+        <tr><td><code>.github/workflows/deploy-nav-app.yaml</code></td><td class="plain">Deploys the nav app to App Builder Stage</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="references">
+  <h2>References</h2>
+  <ul>
+    <li><a href="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/implementing/developing/edge-functions">AEM Edge Functions</a></li>
+    <li><a href="https://experienceleague.adobe.com/en/docs/experience-manager-learn/cloud-service/edge-functions/edge-functions-setup/setup-eds">Set up AEM Edge Functions on Edge Delivery Services</a></li>
+    <li><a href="https://github.com/adobe/aem-edge-functions-examples">AEM Edge Functions examples</a> (the <code>edge-delivery-transformer</code> example this function follows)</li>
+    <li><a href="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/implementing/using-cloud-manager/programs/edge-delivery-services">Edge Delivery Services in Cloud Manager</a></li>
+    <li><a href="https://developer.adobe.com/app-builder/docs/get_started/runtime_getting_started/understanding-runtime">Adobe I/O Runtime</a></li>
+    <li><a href="https://react.dev/reference/react-dom/client/hydrateRoot">React <code>hydrateRoot</code></a></li>
+  </ul>
+</section>
+
+<footer>
+  Walgreens storefront · server-rendered nav prototype · source in <code>nav-app/</code> and <code>edge-nav/</code>
+</footer>
+
+</div>
+</body>
+</html>
