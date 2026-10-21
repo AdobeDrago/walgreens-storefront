@@ -10,6 +10,8 @@
  * The EDS-built Walgreens header that used to live here is in git history (ae32f6d).
  */
 
+import { loadCSS } from '../../scripts/aem.js';
+
 const NAV_APP_URL = 'https://4191536-703coralcanid-stage.adobeio-static.net/api/v1/web/nav-app/nav';
 
 /**
@@ -26,6 +28,10 @@ export default async function decorate(block) {
     if (!resp.ok) throw new Error(`nav-app responded ${resp.status}`);
     const template = document.createElement('template');
     template.innerHTML = await resp.text();
+    // styles first: unstyled nav markup would lay out tall and then jump into place (CLS)
+    const styles = [...template.content.querySelectorAll('link[rel="stylesheet"]')];
+    styles.forEach((link) => link.remove());
+    await Promise.all(styles.map((link) => loadCSS(link.href)));
     // scripts parsed from a string never run; re-created ones do ('strict-dynamic' allows them)
     template.content.querySelectorAll('script[src]').forEach((parsed) => {
       const script = document.createElement('script');
