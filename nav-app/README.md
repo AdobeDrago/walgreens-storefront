@@ -9,6 +9,9 @@ server by an Adobe App Builder (I/O Runtime) web action, then hydrated in the br
 
 This folder is not served by EDS (`.hlxignore`) and not linted by the storefront's ESLint.
 
+For the demo's design decisions, verification results and the Part 2 hand-off, see
+[`tools/edge-nav-demo/README.md`](../tools/edge-nav-demo/README.md).
+
 ## How it works
 
 ```
@@ -16,7 +19,7 @@ EDS  /nav.plain.html ──▶ actions/nav (Runtime web action)
                            parse-nav.js → model
                            Nav.js (React) → renderToString
                            ◀── fragment: <link css> + <div id="wnav-root">…</div>
-                                         + <script id="wnav-data">model</script> + <script module>
+                                         + <script id="wnav-data">model</script> + <script defer>
 browser: web-src/src/client.js (static hosting) → hydrateRoot(#wnav-root, <Nav model/>)
 ```
 
@@ -92,7 +95,7 @@ different branch's nav.
    This runs `NODE_ENV=production aio app deploy --web-optimize`. A plain `aio app deploy` also
    works, but it ships React's unminified development build (about 1.2 MB instead of about 230 KB).
    The output prints the action URL,
-   `https://<namespace>.adobeioruntime.net/api/v1/web/nav-app/nav`, and the static hosting URL,
+   `https://<namespace>.adobeio-static.net/api/v1/web/nav-app/nav`, and the static hosting URL,
    `https://<namespace>.adobeio-static.net/`.
 6. Check it: open `<action URL>?format=page`, then click a nav item. It opens, which means
    hydration ran.
