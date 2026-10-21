@@ -302,6 +302,26 @@
   .card ol { padding-left: 20px; margin: 0; }
   .card ol li { margin: 6px 0; }
 
+  figure.diagram-figure {
+    margin: 18px 0 8px;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  /* phones: keep labels legible and let the drawing scroll sideways */
+  figure.diagram-figure .scroll { overflow-x: auto; }
+  figure.diagram-figure svg { min-width: 680px; display: block; }
+
+  figure.diagram-figure figcaption {
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 80ch;
+  }
+
   footer {
     margin-top: 56px;
     padding-top: 18px;
@@ -341,6 +361,7 @@
     <a href="#verification">Verification</a>
     <a href="#considerations">Considerations</a>
     <a href="#deploy">Deploying</a>
+    <a href="#akamai">Akamai</a>
     <a href="#notes">Implementation notes</a>
     <a href="#repository">Repository</a>
     <a href="#references">References</a>
@@ -377,6 +398,7 @@
   <h3>What's needed for production</h3>
   <ul>
     <li><strong>Licensing and environments:</strong> Adobe App Builder; a Cloud Manager program with the Edge Delivery Services add-on and AEM Edge Functions; a custom domain on the Adobe-managed CDN.</li>
+    <li><strong>A CDN topology decision:</strong> where the nav is inserted when Akamai serves the site (see <a href="#akamai">Running behind Akamai</a>).</li>
     <li><strong>A Production deployment</strong> of the nav app (only Stage is deployed today) and of the edge function.</li>
     <li><strong>Resilience:</strong> a fallback for when App Builder is unavailable, since the nav app is currently required.</li>
     <li><strong>Commerce features in the nav</strong> (live search, signed-in account state, mini-cart), which the prototype doesn't include.</li>
@@ -416,22 +438,21 @@
 <section id="content-source">
   <h2>Using a different content source</h2>
   <p>
-    The prototype reads its nav content from the EDS <code>/nav</code> document because that's
-    where this site's nav is authored today. Nothing else in the solution depends on EDS as the
-    source. Only one step does: the nav app's web action turns the source into a plain JSON
-    <strong>nav model</strong>, and everything after that works from the model alone.
+    In this prototype the nav content comes from the EDS <code>/nav</code> document, because that's
+    where this site's nav is authored today. Your nav can come from anywhere else instead. The nav
+    app works in two stages, and only the first one knows where the content lives:
   </p>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Layer</th><th>Depends on the content source?</th></tr></thead>
-      <tbody>
-        <tr><td>Load and map the content</td><td class="plain"><strong>Yes, the only part that changes.</strong> Today: fetch <code>/nav.plain.html</code> and parse it (<code>nav-app/src/parse-nav.js</code>, called from <code>fetchModel</code> in <code>nav-app/actions/nav/index.js</code>).</td></tr>
-        <tr><td>Server render (React)</td><td class="plain">No. It renders whatever model it's given.</td></tr>
-        <tr><td>Browser hydration</td><td class="plain">No. The model is embedded in the page as JSON.</td></tr>
-        <tr><td>Caching and the HTML fragment</td><td class="plain">No</td></tr>
-        <tr><td>Edge function and EDS <code>header</code> block</td><td class="plain">No. They only see the HTML fragment.</td></tr>
-      </tbody>
-    </table>
+  <div class="grid-2">
+    <div class="card">
+      <h3>1 · Read the content and build the nav model</h3>
+      <p>Fetches the content and converts it into a plain JSON <strong>nav model</strong> (shape below).</p>
+      <p style="margin-top:8px"><strong>This is the part you replace.</strong> Today it fetches <code>/nav.plain.html</code> and parses it: <code>fetchModel</code> in <code>nav-app/actions/nav/index.js</code>, using <code>nav-app/src/parse-nav.js</code>.</p>
+    </div>
+    <div class="card">
+      <h3>2 · Everything after the model</h3>
+      <p>React renders the model to HTML, the response is cached, the edge function or the EDS <code>header</code> block puts it in the page, and the browser hydrates it.</p>
+      <p style="margin-top:8px"><strong>This stays the same,</strong> whatever the source.</p>
+    </div>
   </div>
   <p>
     The source could be a headless CMS, AEM Content Fragments through GraphQL, a commerce category
@@ -533,30 +554,56 @@ npm run dev                      # http://localhost:3100/  (the nav on its own)<
 
 <section id="architecture">
   <h2>Architecture</h2>
-  <div class="diagram" role="img" aria-label="Authors edit /nav in EDS. The App Builder action fetches and parses it, renders React to HTML and returns a fragment. The edge function puts the fragment into the page's header; without it, the EDS header block fetches the fragment in the browser.">
-    <div class="lane">
-      <h3>Content source · today EDS</h3>
-      <p>Authors edit <code>/nav</code>, served as <code>/nav.plain.html</code>. Any other source that can be mapped into the nav model works the same way. EDS delivers the pages themselves with an empty <code>&lt;header&gt;</code>.</p>
-    </div>
-    <div class="arrow">fetch /nav.plain.html</div>
-    <div class="lane">
-      <h3>Nav app · App Builder</h3>
-      <ol>
-        <li>The web action reads the nav content (today <code>/nav.plain.html</code>) and maps it into a JSON model</li>
-        <li>React renders the nav to HTML (<code>renderToString</code>)</li>
-        <li>It returns an HTML fragment that includes the stylesheet and browser bundle from App Builder static hosting</li>
-      </ol>
-      <div class="fragment">&lt;link rel="stylesheet" href="…/web-src.&lt;hash&gt;.css"&gt;
+  <figure class="diagram-figure">
+<div class="scroll"><svg viewBox="0 0 1010 330" role="img" aria-label="With the edge function: the browser requests a page (1); the edge fetches the page from EDS (2) and the nav fragment from the App Builder nav app (3), which reads the content source (4); the edge returns the page with the nav already in the header (5); the browser then loads the nav's CSS and JS from App Builder static hosting to make it interactive (6)." style="width: 100%; height: auto; color: var(--text)">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill: currentColor"/></marker>
+  <marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill: var(--accent)"/></marker>
+</defs>
+<rect x="20" y="120" width="130" height="60" rx="8" style="fill: var(--surface); stroke: currentColor; stroke-opacity: 0.45; stroke-width: 1.2"/>
+<text x="85.0" y="154.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">Browser</text>
+<rect x="290" y="105" width="190" height="90" rx="8" style="fill: var(--surface); stroke: var(--accent); stroke-width: 2"/>
+<text x="385.0" y="147.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">Edge (CDN)</text>
+<text x="385.0" y="164.0" text-anchor="middle" style="fill: var(--muted); font: 12px var(--sans)">inserts nav into &lt;header&gt;</text>
+<rect x="590" y="28" width="190" height="58" rx="8" style="fill: var(--surface); stroke: currentColor; stroke-opacity: 0.45; stroke-width: 1.2"/>
+<text x="685.0" y="54.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">EDS</text>
+<text x="685.0" y="71.0" text-anchor="middle" style="fill: var(--muted); font: 12px var(--sans)">page, empty &lt;header&gt;</text>
+<rect x="590" y="150" width="190" height="58" rx="8" style="fill: var(--surface); stroke: currentColor; stroke-opacity: 0.45; stroke-width: 1.2"/>
+<text x="685.0" y="176.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">Nav app</text>
+<text x="685.0" y="193.0" text-anchor="middle" style="fill: var(--muted); font: 12px var(--sans)">App Builder action</text>
+<rect x="850" y="150" width="140" height="58" rx="8" style="fill: var(--surface); stroke: currentColor; stroke-opacity: 0.45; stroke-width: 1.2"/>
+<text x="920.0" y="176.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">Content source</text>
+<text x="920.0" y="193.0" text-anchor="middle" style="fill: var(--muted); font: 12px var(--sans)">today EDS /nav</text>
+<rect x="590" y="262" width="190" height="52" rx="8" style="fill: var(--surface); stroke: currentColor; stroke-opacity: 0.45; stroke-width: 1.2"/>
+<text x="685.0" y="285.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">Static hosting</text>
+<text x="685.0" y="302.0" text-anchor="middle" style="fill: var(--muted); font: 12px var(--sans)">App Builder CSS + JS</text>
+<polyline points="150,138 288,138" style="fill: none; stroke: currentColor; stroke-width: 1.4" marker-end="url(#arrow)"/>
+<text x="219" y="130" text-anchor="middle" style="fill: var(--muted); font: 12px var(--sans)">1 · GET page</text>
+<polyline points="290,164 152,164" style="fill: none; stroke: currentColor; stroke-width: 1.4" marker-end="url(#arrow)"/>
+<text x="221" y="182" text-anchor="middle" style="fill: var(--muted); font: 12px var(--sans)">5 · page with nav</text>
+<polyline points="480,122 588,62" style="fill: none; stroke: currentColor; stroke-width: 1.4" marker-end="url(#arrow)"/>
+<text x="520" y="80" text-anchor="middle" style="fill: var(--muted); font: 12px var(--sans)">2 · fetch page</text>
+<polyline points="480,172 588,178" style="fill: none; stroke: currentColor; stroke-width: 1.4" marker-end="url(#arrow)"/>
+<text x="534" y="196" text-anchor="middle" style="fill: var(--muted); font: 12px var(--sans)">3 · fetch fragment</text>
+<polyline points="780,179 848,179" style="fill: none; stroke: currentColor; stroke-width: 1.4" marker-end="url(#arrow)"/>
+<text x="814" y="170" text-anchor="middle" style="fill: var(--muted); font: 12px var(--sans)">4 · read</text>
+<polyline points="85,180 85,288 588,288" style="fill: none; stroke: currentColor; stroke-width: 1.4; stroke-dasharray: 5 4" marker-end="url(#arrow)"/>
+<text x="330" y="280" text-anchor="middle" style="fill: var(--muted); font: 12px var(--sans)">6 · load CSS + JS, hydrate</text>
+</svg></div>
+    <figcaption>
+      With the edge function, one page request (1) returns the page with the nav already in
+      <code>&lt;header&gt;</code> (5): the edge fetches the page from EDS (2) and the nav fragment
+      from the nav app (3), which reads the content source (4). The browser then loads the nav's
+      CSS and JavaScript (6) and React makes the menus interactive. Without the edge function, the
+      browser receives the page with an empty <code>&lt;header&gt;</code> and the EDS
+      <code>header</code> block makes request 3 itself, after the page loads.
+    </figcaption>
+  </figure>
+  <p>The fragment the nav app returns is one self-contained piece of HTML:</p>
+  <div class="fragment">&lt;link rel="stylesheet" href="…/web-src.&lt;hash&gt;.css"&gt;
 &lt;div id="wnav-root"&gt; …server-rendered nav… &lt;/div&gt;
-&lt;script type="application/json" id="wnav-data"&gt; …model… &lt;/script&gt;
+&lt;script type="application/json" id="wnav-data"&gt; …nav model… &lt;/script&gt;
 &lt;script src="…/web-src.&lt;hash&gt;.js" defer&gt;&lt;/script&gt;</div>
-    </div>
-    <div class="arrow">fragment (cached 5 minutes)</div>
-    <div class="lane">
-      <h3>Edge function · Adobe-managed CDN</h3>
-      <p>Fetches the page and the fragment, adds the page's CSP nonce to the fragment's scripts, puts the fragment into <code>&lt;header&gt;</code>, and returns one response. Without it, the EDS <code>header</code> block fetches the fragment in the browser.</p>
-    </div>
-  </div>
 
   <h3>Endpoints (Stage)</h3>
   <p>Base URL: <code>https://4191536-703coralcanid-stage.adobeio-static.net/api/v1/web/nav-app/nav</code></p>
@@ -650,6 +697,106 @@ npm run dev                      # http://localhost:3100/  (the nav on its own)<
   </div>
 </section>
 
+<section id="akamai">
+  <h2>Running behind Akamai</h2>
+  <p>
+    Walgreens serves its site through Akamai. The nav app and the EDS <code>header</code> block
+    work the same behind any CDN, so nothing in the nav itself changes. The decision is
+    <strong>where the nav is inserted into the page</strong>, and therefore which CDN runs the
+    edge logic:
+  </p>
+  <figure class="diagram-figure">
+<div class="scroll"><svg viewBox="0 0 860 330" role="img" aria-label="Three ways to run the nav with Akamai. A: Akamai serves EDS directly and an Akamai EdgeWorker inserts the nav, fetching the nav app through an Akamai path. B: Akamai sits in front of the Adobe-managed CDN, whose edge function inserts the nav. C: Akamai serves EDS directly with no edge logic, and the EDS header block fetches the nav in the browser after the page loads." style="width: 100%; height: auto; color: var(--text)">
+<defs>
+  <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill: currentColor"/></marker>
+  <marker id="arrow2-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill: var(--accent)"/></marker>
+</defs>
+<text x="0" y="22" style="fill: currentColor; font: 600 13px var(--sans)">A · Akamai EdgeWorker inserts the nav (Akamai → EDS directly)</text>
+<rect x="0" y="36" width="110" height="44" rx="8" style="fill: var(--surface); stroke: currentColor; stroke-opacity: 0.45; stroke-width: 1.2"/>
+<text x="55.0" y="62.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">Browser</text>
+<rect x="170" y="30" width="220" height="56" rx="8" style="fill: var(--surface); stroke: var(--accent); stroke-width: 2"/>
+<text x="280.0" y="55.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">Akamai + EdgeWorker</text>
+<text x="280.0" y="72.0" text-anchor="middle" style="fill: var(--muted); font: 12px var(--sans)">inserts nav</text>
+<rect x="470" y="26" width="220" height="30" rx="8" style="fill: var(--surface); stroke: currentColor; stroke-opacity: 0.45; stroke-width: 1.2"/>
+<text x="580.0" y="45.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">EDS</text>
+<rect x="470" y="62" width="220" height="30" rx="8" style="fill: var(--surface); stroke: currentColor; stroke-opacity: 0.45; stroke-width: 1.2"/>
+<text x="580.0" y="81.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">Nav app (via Akamai path)</text>
+<polyline points="110,58 168,58" style="fill: none; stroke: currentColor; stroke-width: 1.4" marker-end="url(#arrow2)"/>
+<polyline points="390,50 468,41" style="fill: none; stroke: currentColor; stroke-width: 1.4" marker-end="url(#arrow2)"/>
+<polyline points="390,68 468,77" style="fill: none; stroke: currentColor; stroke-width: 1.4" marker-end="url(#arrow2)"/>
+<text x="0" y="132" style="fill: currentColor; font: 600 13px var(--sans)">B · Akamai in front of the Adobe-managed CDN, which runs the edge function</text>
+<rect x="0" y="146" width="110" height="44" rx="8" style="fill: var(--surface); stroke: currentColor; stroke-opacity: 0.45; stroke-width: 1.2"/>
+<text x="55.0" y="172.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">Browser</text>
+<rect x="170" y="146" width="150" height="44" rx="8" style="fill: var(--surface); stroke: currentColor; stroke-opacity: 0.45; stroke-width: 1.2"/>
+<text x="245.0" y="172.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">Akamai</text>
+<rect x="380" y="140" width="210" height="56" rx="8" style="fill: var(--surface); stroke: var(--accent); stroke-width: 2"/>
+<text x="485.0" y="165.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">Adobe CDN + edge function</text>
+<text x="485.0" y="182.0" text-anchor="middle" style="fill: var(--muted); font: 12px var(--sans)">inserts nav</text>
+<rect x="660" y="136" width="170" height="30" rx="8" style="fill: var(--surface); stroke: currentColor; stroke-opacity: 0.45; stroke-width: 1.2"/>
+<text x="745.0" y="155.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">EDS</text>
+<rect x="660" y="172" width="170" height="30" rx="8" style="fill: var(--surface); stroke: currentColor; stroke-opacity: 0.45; stroke-width: 1.2"/>
+<text x="745.0" y="191.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">Nav app</text>
+<polyline points="110,168 168,168" style="fill: none; stroke: currentColor; stroke-width: 1.4" marker-end="url(#arrow2)"/>
+<polyline points="320,168 378,168" style="fill: none; stroke: currentColor; stroke-width: 1.4" marker-end="url(#arrow2)"/>
+<polyline points="590,160 658,151" style="fill: none; stroke: currentColor; stroke-width: 1.4" marker-end="url(#arrow2)"/>
+<polyline points="590,178 658,187" style="fill: none; stroke: currentColor; stroke-width: 1.4" marker-end="url(#arrow2)"/>
+<text x="0" y="242" style="fill: currentColor; font: 600 13px var(--sans)">C · No edge logic: Akamai → EDS, the header block fetches the nav in the browser</text>
+<rect x="0" y="250" width="180" height="56" rx="8" style="fill: var(--surface); stroke: var(--accent); stroke-width: 2"/>
+<text x="90.0" y="275.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">Browser</text>
+<text x="90.0" y="292.0" text-anchor="middle" style="fill: var(--muted); font: 12px var(--sans)">header block inserts nav</text>
+<rect x="240" y="246" width="150" height="30" rx="8" style="fill: var(--surface); stroke: currentColor; stroke-opacity: 0.45; stroke-width: 1.2"/>
+<text x="315.0" y="265.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">Akamai</text>
+<rect x="450" y="246" width="170" height="30" rx="8" style="fill: var(--surface); stroke: currentColor; stroke-opacity: 0.45; stroke-width: 1.2"/>
+<text x="535.0" y="265.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">EDS</text>
+<rect x="450" y="286" width="170" height="30" rx="8" style="fill: var(--surface); stroke: currentColor; stroke-opacity: 0.45; stroke-width: 1.2"/>
+<text x="535.0" y="305.0" text-anchor="middle" style="fill: currentColor; font: 600 13px var(--sans)">Nav app</text>
+<polyline points="180,261 238,261" style="fill: none; stroke: currentColor; stroke-width: 1.4" marker-end="url(#arrow2)"/>
+<polyline points="390,261 448,261" style="fill: none; stroke: currentColor; stroke-width: 1.4" marker-end="url(#arrow2)"/>
+<polyline points="180,298 448,301" style="fill: none; stroke: var(--accent); stroke-width: 1.4; stroke-dasharray: 5 4" marker-end="url(#arrow2-accent)"/>
+<text x="314" y="294" text-anchor="middle" style="fill: var(--accent); font: 12px var(--sans)">later request from the browser</text>
+</svg></div>
+    <figcaption>
+      The highlighted box is where the nav is inserted. In A and B the page leaves the edge with
+      the nav already in it; in C the browser fetches the nav after the page loads.
+    </figcaption>
+  </figure>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Option</th><th>How it works</th><th>What it needs</th><th>Trade-offs</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>A · Akamai EdgeWorker</td>
+          <td class="plain">Akamai serves EDS directly, as in Adobe's standard Akamai setup for EDS. An EdgeWorker (<code>responseProvider</code> with <code>html-rewriter</code>) fetches the page and the nav fragment, adds the nav to <code>&lt;header&gt;</code> and streams the result.</td>
+          <td class="plain">Akamai EdgeWorkers. A path on the Walgreens Akamai property that routes to the App Builder nav app (for example <code>/nav-fragment</code>), because EdgeWorker sub-requests must go to Akamai-served hostnames. A port of the insertion logic from <code>edge-nav/src/stitch.js</code>, which has no Fastly dependencies.</td>
+          <td class="plain">One CDN, no extra hop, and it fits an existing Akamai operation. The AEM Edge Function isn't used; the same logic runs on Akamai instead. EdgeWorker CPU, memory and sub-request limits depend on the resource tier.</td>
+        </tr>
+        <tr>
+          <td>B · Akamai in front of the Adobe-managed CDN</td>
+          <td class="plain">Akamai forwards page requests to the Adobe-managed CDN, where the <code>edge-nav</code> edge function inserts the nav, as built in this prototype.</td>
+          <td class="plain">Everything in <a href="#deploy">Deploying</a> for the edge function, plus Akamai configured to forward to the Adobe CDN with the site's host (<code>X-Forwarded-Host</code>) and an authentication key.</td>
+          <td class="plain">Reuses the edge function unchanged, but two CDNs sit in series: one more network hop and two caches to keep in step on purges. Adobe documents a customer CDN in front of its CDN for AEM publish; <strong>confirm with Adobe that this topology is supported for EDS sites with Edge Functions</strong> before choosing it.</td>
+        </tr>
+        <tr>
+          <td>C · No edge logic</td>
+          <td class="plain">Akamai serves EDS directly, and the <code>header</code> block fetches the nav in the browser. This is the path the prototype already uses on aem.page and aem.live.</td>
+          <td class="plain">Nothing beyond Adobe's standard Akamai setup for EDS. Optionally, route the nav fragment through the Akamai property so Akamai caches it too.</td>
+          <td class="plain">The simplest to run, but the nav appears after the page loads (the fragment request took about 0.3 s in testing). PageSpeed on this path scored 96 on mobile and 99 on desktop.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Applies to every option</h3>
+  <ul>
+    <li><strong>Akamai to EDS:</strong> follow Adobe's <a href="https://www.aem.live/docs/byo-cdn-akamai-setup">Akamai setup for EDS</a>. That means origin <code>main--&lt;repo&gt;--&lt;org&gt;.aem.live</code>; the request headers <code>X-Forwarded-Host</code>, <code>X-BYO-CDN-Type: akamai</code> and <code>X-Push-Invalidation: enabled</code>; honouring origin <code>Cache-Control</code>; and push invalidation, so EDS publishes purge Akamai.</li>
+    <li><strong>Content Security Policy:</strong> in A and B the inserted nav's <code>&lt;script&gt;</code> tags must carry the page's per-response nonce, as <code>edge-nav</code> does today. In C the <code>header</code> block's scripts are allowed automatically.</li>
+    <li><strong>Caching assembled pages:</strong> EDS asks for long CDN lifetimes and nav changes don't purge pages. Pages with the nav inserted should be cached no longer than the nav fragment (5 minutes in the prototype), as <code>edge-nav</code> does.</li>
+    <li><strong>Fallback:</strong> if the nav fragment is slow or fails, return the page unchanged and let the <code>header</code> block load the nav in the browser.</li>
+    <li><strong>Audience variants</strong> (locale, store, signed-in state) must be part of the fragment URL and of the cache key in whichever CDN does the insertion.</li>
+  </ul>
+</section>
+
 <section id="notes">
   <h2>Implementation notes</h2>
   <p>Details that shaped the code and are worth knowing when extending it:</p>
@@ -686,6 +833,9 @@ npm run dev                      # http://localhost:3100/  (the nav on its own)<
     <li><a href="https://experienceleague.adobe.com/en/docs/experience-manager-learn/cloud-service/edge-functions/edge-functions-setup/setup-eds">Set up AEM Edge Functions on Edge Delivery Services</a></li>
     <li><a href="https://github.com/adobe/aem-edge-functions-examples">AEM Edge Functions examples</a> (the <code>edge-delivery-transformer</code> example this function follows)</li>
     <li><a href="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/implementing/using-cloud-manager/programs/edge-delivery-services">Edge Delivery Services in Cloud Manager</a></li>
+    <li><a href="https://www.aem.live/docs/byo-cdn-akamai-setup">Akamai setup for Edge Delivery Services</a></li>
+    <li><a href="https://techdocs.akamai.com/edgeworkers/docs/htmlrewriter">Akamai EdgeWorkers html-rewriter</a> and <a href="https://techdocs.akamai.com/edgeworkers/docs/resource-tier-limitations">resource tier limits</a></li>
+    <li><a href="https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/implementing/content-delivery/cdn">CDN in AEM as a Cloud Service</a> (customer-managed CDN in front of the Adobe CDN)</li>
     <li><a href="https://developer.adobe.com/app-builder/docs/get_started/runtime_getting_started/understanding-runtime">Adobe I/O Runtime</a></li>
     <li><a href="https://react.dev/reference/react-dom/client/hydrateRoot">React <code>hydrateRoot</code></a></li>
   </ul>
