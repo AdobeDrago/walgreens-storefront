@@ -1,0 +1,269 @@
+/* Scoped to .wnav. Uses the storefront's design tokens when injected into the EDS page and falls
+   back to literal values when the nav is viewed on its own. */
+.wnav {
+  --wnav-crimson: var(--palette-brand-crimson, #e31837);
+  --wnav-text: var(--text-body-primary, #1f1f1f);
+  --wnav-muted: var(--palette-gray-600, #5c5c5c);
+  --wnav-line: var(--palette-gray-200, #e2e2e2);
+  --wnav-bg: var(--palette-brand-white, #fff);
+  --wnav-shadow: 0 8px 24px rgb(0 0 0 / 14%);
+
+  position: relative;
+  font-family: var(--body-font-family, inter, system-ui, sans-serif);
+  font-size: 14px;
+  color: var(--wnav-text);
+  background: var(--wnav-bg);
+  border-bottom: 1px solid var(--wnav-line);
+}
+
+.wnav ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wnav a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.wnav a:hover {
+  text-decoration: underline;
+}
+
+.wnav button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.wnav :focus-visible {
+  outline: 2px solid var(--wnav-crimson);
+  outline-offset: 2px;
+}
+
+.wnav .wnav-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.wnav .wnav-chev {
+  width: 14px;
+  height: 14px;
+  margin-left: 4px;
+  transition: transform 0.15s;
+}
+
+.wnav [aria-expanded='true'] > .wnav-chev {
+  transform: rotate(180deg);
+}
+
+.wnav .wnav-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* promo bar */
+.wnav .wnav-promo {
+  background: var(--wnav-crimson);
+  color: #fff;
+  font-size: 13px;
+}
+
+.wnav .wnav-promo ul {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  padding: 8px 16px;
+  white-space: nowrap;
+}
+
+/* top row */
+.wnav .wnav-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  padding: 12px 16px;
+}
+
+.wnav .wnav-brand img {
+  display: block;
+  height: 32px;
+  width: auto;
+}
+
+.wnav .wnav-search {
+  order: 10;
+  flex: 1 1 100%;
+}
+
+.wnav .wnav-search input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 40px;
+  padding: 0 16px;
+  font: inherit;
+  border: 1px solid var(--wnav-line);
+  border-radius: 999px;
+}
+
+.wnav .wnav-store {
+  display: none;
+  color: var(--wnav-muted);
+}
+
+.wnav .wnav-account {
+  position: relative;
+  margin-left: auto;
+}
+
+.wnav .wnav-account-trigger,
+.wnav .wnav-link {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+}
+
+.wnav .wnav-cart {
+  display: inline-flex;
+}
+
+/* panels */
+.wnav .wnav-panel {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: var(--wnav-bg);
+  box-shadow: var(--wnav-shadow);
+}
+
+.wnav .wnav-panel[hidden] {
+  display: none;
+}
+
+.wnav .wnav-panel-account {
+  left: auto;
+  right: 0;
+  width: 240px;
+}
+
+.wnav .wnav-panel li {
+  padding: 4px 0;
+}
+
+.wnav .wnav-title,
+.wnav .wnav-group-label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.wnav .wnav-group {
+  break-inside: avoid;
+  margin-bottom: 12px;
+}
+
+/* nav row: a drawer under the top row on mobile */
+.wnav .wnav-nav {
+  display: none;
+  border-top: 1px solid var(--wnav-line);
+}
+
+.wnav[data-menu-open='true'] .wnav-nav {
+  display: block;
+}
+
+.wnav .wnav-nav > ul {
+  display: flex;
+  flex-direction: column;
+}
+
+.wnav .wnav-item {
+  border-bottom: 1px solid var(--wnav-line);
+}
+
+.wnav .wnav-item > .wnav-link {
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 16px;
+  box-sizing: border-box;
+}
+
+.wnav .wnav-nav .wnav-panel {
+  position: static;
+  box-shadow: none;
+  padding-top: 0;
+}
+
+@media (width >= 768px) {
+  .wnav .wnav-menu {
+    display: none;
+  }
+
+  .wnav .wnav-search {
+    order: 0;
+    flex: 1 1 320px;
+    max-width: 560px;
+  }
+
+  .wnav .wnav-store {
+    display: inline;
+  }
+
+  .wnav .wnav-top {
+    flex-wrap: nowrap;
+    padding: 12px 24px;
+  }
+
+  .wnav .wnav-nav,
+  .wnav[data-menu-open='true'] .wnav-nav {
+    display: block;
+    position: relative;
+  }
+
+  .wnav .wnav-nav > ul {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px 24px;
+    padding: 0 24px;
+  }
+
+  .wnav .wnav-item {
+    border-bottom: 0;
+  }
+
+  .wnav .wnav-item-end {
+    margin-left: auto;
+  }
+
+  .wnav .wnav-item > .wnav-link {
+    width: auto;
+    padding: 12px 0;
+  }
+
+  .wnav .wnav-nav .wnav-panel {
+    position: absolute;
+    top: 100%;
+    box-shadow: var(--wnav-shadow);
+    padding: 24px;
+  }
+
+  .wnav .wnav-nav .wnav-panel > ul {
+    columns: 3 220px;
+    column-gap: 32px;
+  }
+
+  .wnav .wnav-nav .wnav-panel-mega > ul {
+    columns: 5 180px;
+  }
+}

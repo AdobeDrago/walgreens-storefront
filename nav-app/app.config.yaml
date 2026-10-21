@@ -1,0 +1,21 @@
+application:
+  actions: actions
+  web: web-src
+  runtimeManifest:
+    packages:
+      nav-app:
+        license: Apache-2.0
+        actions:
+          nav:
+            function: actions/nav/index.js
+            web: 'yes'
+            runtime: nodejs:22
+            inputs:
+              LOG_LEVEL: info
+              # EDS site the nav document is read from (…/nav.plain.html)
+              EDS_ORIGIN: $EDS_ORIGIN
+              # optional: where the hydration bundle lives; defaults to this workspace's static hosting
+              ASSET_BASE: $ASSET_BASE
+            annotations:
+              require-adobe-auth: false
+              final: true
