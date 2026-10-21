@@ -416,22 +416,21 @@
 <section id="content-source">
   <h2>Using a different content source</h2>
   <p>
-    The prototype reads its nav content from the EDS <code>/nav</code> document because that's
-    where this site's nav is authored today. Nothing else in the solution depends on EDS as the
-    source. Only one step does: the nav app's web action turns the source into a plain JSON
-    <strong>nav model</strong>, and everything after that works from the model alone.
+    In this prototype the nav content comes from the EDS <code>/nav</code> document, because that's
+    where this site's nav is authored today. Your nav can come from anywhere else instead. The nav
+    app works in two stages, and only the first one knows where the content lives:
   </p>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Layer</th><th>Depends on the content source?</th></tr></thead>
-      <tbody>
-        <tr><td>Load and map the content</td><td class="plain"><strong>Yes, the only part that changes.</strong> Today: fetch <code>/nav.plain.html</code> and parse it (<code>nav-app/src/parse-nav.js</code>, called from <code>fetchModel</code> in <code>nav-app/actions/nav/index.js</code>).</td></tr>
-        <tr><td>Server render (React)</td><td class="plain">No. It renders whatever model it's given.</td></tr>
-        <tr><td>Browser hydration</td><td class="plain">No. The model is embedded in the page as JSON.</td></tr>
-        <tr><td>Caching and the HTML fragment</td><td class="plain">No</td></tr>
-        <tr><td>Edge function and EDS <code>header</code> block</td><td class="plain">No. They only see the HTML fragment.</td></tr>
-      </tbody>
-    </table>
+  <div class="grid-2">
+    <div class="card">
+      <h3>1 · Read the content and build the nav model</h3>
+      <p>Fetches the content and converts it into a plain JSON <strong>nav model</strong> (shape below).</p>
+      <p style="margin-top:8px"><strong>This is the part you replace.</strong> Today it fetches <code>/nav.plain.html</code> and parses it: <code>fetchModel</code> in <code>nav-app/actions/nav/index.js</code>, using <code>nav-app/src/parse-nav.js</code>.</p>
+    </div>
+    <div class="card">
+      <h3>2 · Everything after the model</h3>
+      <p>React renders the model to HTML, the response is cached, the edge function or the EDS <code>header</code> block puts it in the page, and the browser hydrates it.</p>
+      <p style="margin-top:8px"><strong>This stays the same,</strong> whatever the source.</p>
+    </div>
   </div>
   <p>
     The source could be a headless CMS, AEM Content Fragments through GraphQL, a commerce category
